@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.shortcuts import render_to_response
-from .forms import RegisterForm1, RegisterForm, changeForm, userForm, PasswordForm, PostForm, ReplyForm
+from .forms import RegisterForm1, RegisterForm, changeForm, userForm, PasswordForm, PostForm, ReplyForm,ReplytoReplyForm
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
-from .models import MyUser, Post, Reply
+from .models import MyUser, Post, Reply,ReplytoReply
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
@@ -115,6 +115,20 @@ def changeInfo(request):
     else:
         return HttpResponseRedirect("/home")
 		
+
+
+def directToHome(request):
+	return HttpResponseRedirect("/home")
+
+
+def search(request):
+    key = request.GET['q']
+    
+    posts=Post.objects.filter(title__icontains=key)
+    if not posts:
+        return render(request,'studentForum/nothingmatch.html',{})
+    else:
+        return render(request,'studentForum/result.html',{'posts':posts})
 def showDetail(request, postIDstr):
     postID = int(postIDstr)
     rarams = request.POST if request.method == 'POST' else None
@@ -128,27 +142,16 @@ def showDetail(request, postIDstr):
         form = ReplyForm()
     replies = Reply.objects.filter(PID = post)
     return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form})
-
-def directToHome(request):
-	return HttpResponseRedirect("/home")
-
-
-def search(request):
-    key = request.GET['q']
-    posts=Post.objects.filter(title__icontains=key)
-    if not posts:
-        return render(request,'studentForum/nothingmatch.html',{})
-    else:
-        return render(request,'studentForum/result.html',{'posts':posts})
-    
-    #if not key :
-    #    message = u'请输入搜索内容'
-#        return render_to_response('studentForum/result.html',{'message':message})
- 
-    #else :
-     #message = u'你输入的是' + key
-        #return render_to_response('studentForum/result.html',{'message':message})
-#def trysearch(request):   
- #   data='abc'
-#data=request.GET['searchbox']
-   # return render(request,'studentForum/try.html',{'try':data})
+def replytoreply(request,replyIDstr):
+    replyID=int(replyIDstr)
+    para=request.POST if request.method=='POST' else None
+    form=ReplytoReplyForm(para)
+    reply=Reply.objects.get(id=replyID)
+    if form.is_valid() and request.user.is_authenticated():
+        replytoreply=form.save(commit=False)
+        replytoreply.PID=reply
+        replytoreply.author=request.user.myuser
+        replytoreply.save()
+        form=ReplytoReplyForm()
+    replytoreplies=ReplytoReply.objects.filter(PID=reply)
+    return render(request,'studentForum/replyDetail.html',{'replytoreplies':replytoreplies,'reply':reply,'reprepform':form})

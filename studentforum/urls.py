@@ -26,5 +26,6 @@ urlpatterns = [
     url(r'^postDetail/([0-9]+)$', views.showDetail, name='forpostdetail'),
     url(r'^$', views.directToHome, name='toHome'),
 
-    url(r'^search/', views.search,name='result')
+    url(r'^search/', views.search,name='result'),
+    url(r'^replyDetails/([0-9]+)$',views.replytoreply,name='replytoreply')
 ]

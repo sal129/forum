@@ -20,3 +20,17 @@ window.location.href='shit.html';
     <button type="button" class=" search " onclick="window.location.href='{% url 'forsearch' %}'">ËÑË÷</button>
     </form>
 </div>-->
+
+
+
+
+class ReplyToReply(models.Model):
+    id=models.AutoField(primary_key=True,unique=True)
+    author=models.ForeignKey('MyUser')
+    PID=models.ForeignKey('Reply')
+    content=models.TextField(verbose_name="Â¥ÖÐÂ¥»ØÌû",null=True)
+    created_at=models.DateTimeField(default = timezone.now)
+    
+    def __str__(self):
+		return self.content
+s

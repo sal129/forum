@@ -31,4 +31,14 @@ class Reply(models.Model):
 	def __str__(self):
 		return self.content
 
+class ReplytoReply(models.Model):
+    id=models.AutoField(primary_key=True,unique=True)
+    author=models.ForeignKey('MyUser')
+    PID=models.ForeignKey('Reply')
+    content=models.TextField(verbose_name="楼中楼回帖",null=True)
+    created_at=models.DateTimeField(default = timezone.now)
+    
+    def __str__(self):
+        return self.content
+
 # Create your models here.
