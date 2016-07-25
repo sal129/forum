@@ -1,0 +1,22 @@
+def search_now(request):
+    params=request.POST if request.method=='POST' else None
+    return render(request,'msgboard/shit.html',{})
+
+
+
+
+
+window.location.href='shit.html';
+
+
+
+
+
+<!--<div>
+    <form action="" method="POST">
+        
+        {% csrf_token %}
+    <input type="text" name='searchbox'/>
+    <button type="button" class=" search " onclick="window.location.href='{% url 'forsearch' %}'">ËÑË÷</button>
+    </form>
+</div>-->

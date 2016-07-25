@@ -1,0 +1,16 @@
+<html><!--result.html-->
+<head>
+    <title>Search</title>
+</head>
+<body>
+    {% for post in posts %}
+    <div>
+    
+    <h2><a href = "{% url 'forpostdetail' post.id %}">{{post.title}}</a></h2>
+    <p><b>{{post.author}}</b>发帖于{{post.created_at}}</p>
+    
+    </div>
+    {% endfor %}
+        
+</body>
+</html>
