@@ -7,7 +7,14 @@ from django.contrib.auth.models import User
 from .models import MyUser, Post, Reply,ReplytoReply
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django import template
+#=template.Library()
+#@register.simple_tag
+#def reprep_tag(obj):
+ #   return ReplytoReply.objects.filter(PID=reply)
+#register.simple_tag(reprep_tag)
 # Create your views here.
+switch=False
 def test(request):
     posts = Post.objects.all()
     form = PostForm()
@@ -130,6 +137,8 @@ def search(request):
     else:
         return render(request,'studentForum/result.html',{'posts':posts})
 def showDetail(request, postIDstr):
+    global switch
+    switch=False
     postID = int(postIDstr)
     rarams = request.POST if request.method == 'POST' else None
     form = ReplyForm(rarams)
@@ -142,7 +151,8 @@ def showDetail(request, postIDstr):
         form = ReplyForm()
     replies = Reply.objects.filter(PID = post)
     return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form})
-def replytoreply(request,replyIDstr):
+def replytoreply(request,replyIDstr,postIDstr):
+    postID=int(postIDstr)
     replyID=int(replyIDstr)
     para=request.POST if request.method=='POST' else None
     form=ReplytoReplyForm(para)
@@ -154,4 +164,31 @@ def replytoreply(request,replyIDstr):
         replytoreply.save()
         form=ReplytoReplyForm()
     replytoreplies=ReplytoReply.objects.filter(PID=reply)
-    return render(request,'studentForum/replyDetail.html',{'replytoreplies':replytoreplies,'reply':reply,'reprepform':form})
+    post=Post.objects.get(id=postID)
+    
+    return render(request,'studentForum/replyDetail.html',{'replytoreplies':replytoreplies,'reply':reply,'reprepform':form,'post':post})
+def reptorep(request,replyIDstr,postIDstr):
+    postID = int(postIDstr)
+    rarams = request.POST if request.method == 'POST' else None
+    form = ReplyForm(rarams)
+    post = Post.objects.get(id = postID)
+    if form.is_valid() and request.user.is_authenticated():
+        reply = form.save(commit = False)
+        reply.PID = post
+        reply.author = request.user.myuser
+        reply.save()
+        form = ReplyForm()
+    replies = Reply.objects.filter(PID = post)
+    replyid=int(replyIDstr)
+    reply_=Reply.objects.get(id=replyid)
+    reprep=ReplytoReply.objects.filter(PID=reply_)
+    global switch
+    if switch:
+        switch=False
+    elif not switch:
+        switch=True
+    
+    #reply_.showrr=!reply_.showrr
+    print(reprep)
+    print(reply_.showrr)
+    return render(request,'studentForum/postDetail.html',{'reprep':reprep,'replies': replies, 'post': post, 'form': form,'switch':switch})

@@ -23,9 +23,11 @@ urlpatterns = [
 	url(r'^register/', views.register, name='forregister'),
 	url(r'^modify/', views.modifyPassword, name='formodify'),
 	url(r'^infoChange/', views.changeInfo, name='forchange'),
-    url(r'^postDetail/([0-9]+)$', views.showDetail, name='forpostdetail'),
+    url(r'^postDetail/([0-9]+)/$', views.showDetail, name='forpostdetail'),
+    url(r'^postDetail/([0-9]+)/([0-9]+)/$',views.reptorep,name='reptorep'),
     url(r'^$', views.directToHome, name='toHome'),
 
     url(r'^search/', views.search,name='result'),
-    url(r'^replyDetails/([0-9]+)$',views.replytoreply,name='replytoreply')
+    url(r'^replyDetails/([0-9]+)/([0-9]+)/$',views.replytoreply,name='replytoreply'),
+   
 ]

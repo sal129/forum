@@ -21,15 +21,7 @@ class Post(models.Model):
 	def __str__(self):
 		return self.title
 
-class Reply(models.Model):
-	id = models.AutoField(primary_key = True, unique = True)
-	author = models.ForeignKey('MyUser')
-	PID = models.ForeignKey('Post')
-	content = models.TextField(verbose_name = " 回帖内容", null = True)
-	created_at = models.DateTimeField(default = timezone.now)
 
-	def __str__(self):
-		return self.content
 
 class ReplytoReply(models.Model):
     id=models.AutoField(primary_key=True,unique=True)
@@ -40,5 +32,14 @@ class ReplytoReply(models.Model):
     
     def __str__(self):
         return self.content
-
+class Reply(models.Model):
+    id=models.AutoField(primary_key = True, unique = True)
+    author= models.ForeignKey('MyUser')
+    PID = models.ForeignKey('Post')
+    content = models.TextField(verbose_name = " 回帖内容", null = True)
+    showrr=False
+    created_at = models.DateTimeField(default = timezone.now)
+    def __str__(self):
+        return self.content
+    
 # Create your models here.

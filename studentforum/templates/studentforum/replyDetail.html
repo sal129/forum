@@ -8,12 +8,21 @@
 <body>
   <div id="topForBack"><a href="{% url 'test' %}">返回首页</a></div>
   
-  <p>{{reply.content}}</p>
+ <h1> {{post.title}} </h1>
+  <p>{{post.content}}</p>
+    <p><b>{{post.author}}</b>发帖于{{post.created_at}}</p>
+    <hr>
+    <p>&nbsp;&nbsp;以下是该层的回复</p>
+    <hr>
+  <p>&nbsp;&nbsp;{{reply.content}}</p>
+    <p><b>&nbsp;&nbsp;{{reply.author}}</b>回复于{{reply.created_at}}</p>
   <hr>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;楼中楼回复</p>
+    <hr>
   {% for reprep in replytoreplies %}
   <div>
-    <h4>{{reprep.content}}</h4>
-      <p><b>{{reprep.author}}</b>回复于{{reprep.created_at}}</p>
+    <h4>&nbsp;&nbsp;&nbsp;&nbsp;{{reprep.content}}</h4>
+      <p><b>&nbsp;&nbsp;&nbsp;&nbsp;{{reprep.author}}</b>回复于{{reprep.created_at}}</p>
       
   </div>
   {% endfor %}
