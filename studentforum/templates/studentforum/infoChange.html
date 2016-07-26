@@ -2,7 +2,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'studentforum/infoChange.css' %}" />
 <html>
 <body>
-<form enctype="multipart/form-data" method="POST" class="post-form">
+<form method="POST" class="post-form">
 {% csrf_token %}
 <div class= "center">
 {{ form1.as_p }}

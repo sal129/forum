@@ -5,9 +5,6 @@ class MyUser(models.Model):
     user = models.OneToOneField(User, primary_key = True, default = 4)
     #sexuality = models.BooleanField(default = True)
     intro = models.TextField(max_length = 500, null = True)
-    url_height = models.PositiveIntegerField(null = True)
-    url_width = models.PositiveIntegerField(null = True)
-    portrait = models.ImageField( upload_to = "studentforum/portraits", height_field="url_height", width_field="url_width",null = True)
     def __str__(self):
         return self.user.username
     #def __init__(self, user):
@@ -24,27 +21,25 @@ class Post(models.Model):
 	def __str__(self):
 		return self.title
 
+
+
+class ReplytoReply(models.Model):
+    id=models.AutoField(primary_key=True,unique=True)
+    author=models.ForeignKey('MyUser')
+    PID=models.ForeignKey('Reply')
+    content=models.TextField(verbose_name="楼中楼回帖",null=True)
+    created_at=models.DateTimeField(default = timezone.now)
+    
+    def __str__(self):
+        return self.content
 class Reply(models.Model):
-	id = models.AutoField(primary_key = True, unique = True)
-	author = models.ForeignKey('MyUser')
-	PID = models.ForeignKey('Post')
-	content = models.TextField(verbose_name = " 回帖内容", null = True)
-	created_at = models.DateTimeField(default = timezone.now)
-
-	def __str__(self):
-		return self.content
-
-class Test(models.Model):
-	url_height = models.PositiveIntegerField(null = True)
-	url_width = models.PositiveIntegerField(null = True)
-	photo = models.ImageField( upload_to = "studentforum/portraits", height_field="url_height", width_field="url_width",null = True)
-	title = models.CharField(max_length = 100, default = " test")
-	def __str__(self):
-		return self.title
+    id=models.AutoField(primary_key = True, unique = True)
+    author= models.ForeignKey('MyUser')
+    PID = models.ForeignKey('Post')
+    content = models.TextField(verbose_name = " 回帖内容", null = True)
+    showrr=False
+    created_at = models.DateTimeField(default = timezone.now)
+    def __str__(self):
+        return self.content
+    
 # Create your models here.
-
-class ForWidgetTest(models.Model):
-	content = models.CharField(max_length = 100, verbose_name = " 内容")
-	title = models.CharField(max_length = 100, default = " test")
-	def __str__(self):
-		return self.title
