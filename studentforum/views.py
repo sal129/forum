@@ -8,6 +8,9 @@ from .models import MyUser, Post, Reply,ReplytoReply
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django import template
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import HttpResponseRedirect, HttpResponse
+import json
 #=template.Library()
 #@register.simple_tag
 #def reprep_tag(obj):
@@ -136,7 +139,17 @@ def search(request):
         return render(request,'studentForum/nothingmatch.html',{})
     else:
         return render(request,'studentForum/result.html',{'posts':posts})
+@ensure_csrf_cookie
 def showDetail(request, postIDstr):
+    print(request.is_ajax())
+    if request.is_ajax() and request.user.is_authenticated():
+        req = json.loads(request.POST["data"])
+        reptorep1 = ReplytoReply()
+        reptorep1.author = request.user.myuser
+        reptorep1.content = req["content"]
+        reptorep1.PID = Reply.objects.get(id = int(req["replyid"]))
+        reptorep1.save()
+        return HttpResponse(json.dumps({"content":reptorep1.content,"author":reptorep1.author.user.username}))
     global switch
     switch=False
     postID = int(postIDstr)
@@ -150,7 +163,40 @@ def showDetail(request, postIDstr):
         reply.save()
         form = ReplyForm()
     replies = Reply.objects.filter(PID = post)
+
     return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form})
+
+
+
+@ensure_csrf_cookie
+def countgood(request):
+    
+    if request.is_ajax and request.user.is_authenticated():
+        req=json.loads(request.POST["data"])
+        reply=Reply()
+        reply=Reply.objects.get(id=int(req["replyid"]))
+        tmp=reply.supportNum+1
+        reply.supportNum=tmp
+        print(reply.supportNum)
+        #reply.numgood++
+        reply.save()
+        return HttpResponse(json.dumps({"num":reply.supportNum,"whatever":"whatever"}))
+
+    
+@ensure_csrf_cookie
+def postcountgood(request,w,h,atever):
+    if request.is_ajax and request.user.is_authenticated():
+        req=json.loads(request.POST["data"])
+        print(req["postid"])
+        post=Post.objects.get(id=int(req["postid"]))
+        tmp=post.supportNum+1
+        post.supportNum=tmp
+        #print(post.supportNum)
+        post.save()
+        return HttpResponse(json.dumps({"num":post.supportNum,"whatever":"whatever"}))
+        
+        
+        
 def replytoreply(request,replyIDstr,postIDstr):
     postID=int(postIDstr)
     replyID=int(replyIDstr)
@@ -165,8 +211,9 @@ def replytoreply(request,replyIDstr,postIDstr):
         form=ReplytoReplyForm()
     replytoreplies=ReplytoReply.objects.filter(PID=reply)
     post=Post.objects.get(id=postID)
-    
+   
     return render(request,'studentForum/replyDetail.html',{'replytoreplies':replytoreplies,'reply':reply,'reprepform':form,'post':post})
+
 def reptorep(request,replyIDstr,postIDstr):
     postID = int(postIDstr)
     rarams = request.POST if request.method == 'POST' else None
@@ -191,4 +238,4 @@ def reptorep(request,replyIDstr,postIDstr):
     #reply_.showrr=!reply_.showrr
     print(reprep)
     print(reply_.showrr)
-    return render(request,'studentForum/postDetail.html',{'reprep':reprep,'replies': replies, 'post': post, 'form': form,'switch':switch})
+    return render(request,'studentForum/postDetail.html',{'reprep':reprep,'replies': replies, 'post': post, 'form': form,'switch':switch, 'replyId':replyid})

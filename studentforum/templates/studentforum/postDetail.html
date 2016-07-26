@@ -5,28 +5,46 @@
 <head>
    <meta charset = "utf-8"/>
    <title> 贴子详情 </title>
+    <script>
+    window.onload=function()
+    {
+        document.getElementById("postgood").textContent={{post.supportNum}};
+        {%for reply in replies%}
+        var rep=document.getElementById("countgood_"+{{reply.id}});
+        rep.textContent={{reply.supportNum}};
+        {%endfor%}
+    };
+    
+    
+    
+    </script>
 </head>
 <body>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <div id="topForBack"><a href="{% url 'test' %}">返回首页</a></div>
     
   <h1> {{post.title}} </h1>
   <p>{{post.content}}</p>
-    <p><b>{{post.author}}</b>发帖于{{post.created_at}}</p>
+    <p><b>{{post.author}}</b>发帖于{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span></p>
+    
   <hr>
   {% for reply in replies %}
  <div>
     <h4>{{reply.content}}</h4>
-    <p><b>{{reply.author}}</b>回复于{{reply.created_at}}&nbsp;&nbsp;<a href="{% url 'replytoreply' reply.id post.id %}">回复</a><a href="{%url 'reptorep' reply.id post.id%}">&nbsp;显示楼中楼</a></p>
-    {%if switch %}
-     {%for rr in reprep %}
-     
-     <h5>{{rr.content}}</h5>
-     
-     
+    <p><b>{{reply.author}}</b>回复于{{reply.created_at}}&nbsp;&nbsp;<span title="reply_{{reply.id}}" onclick = "changeShowAndDisplay(this)">收起回复</span>&nbsp;<span id='good' onclick='clicker({{reply.id}})'>赞</span><span id='countgood_{{reply.id}}'></span> 
+	<div id = "reply_{{reply.id}}" style = "display:block;">
+        
+	<div id = "replyinside_{{reply.id}}">
+     {%for rr in reply.replytoreply_set.all%}
+     <p>{{rr.content}}</p>   	 
      {%endfor%}
-     
-    {%endif%}
-   
+	  </div>
+	 <span id = "showreptorep_{{reply.id}}" onclick = "showreptorep(this)" style = "display:block;">我也说一句</span>
+	 <div id = "reptorepdiv_{{reply.id}}" style = "display:none;">
+	 <textarea id="reptorep_{{reply.id}}" rows="10" cols="40"></textarea>
+	 <input type="button" value="回复" onclick = "updateReply(this)")></input>
+	 </div>
+   </div>   
      
     <hr>
   </div>
@@ -37,5 +55,138 @@
 	{{form.as_p}}
   <button type="submit" class="save btn btn-default">发表回复</button>
   </form>
+  <script>
+  function getCookie(name) {
+         var cookieValue = null;
+         if (document.cookie && document.cookie !== '') {
+           var cookies = document.cookie.split(';');
+           for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+           }
+         }
+         return cookieValue;
+      }
+var csrftoken = getCookie('csrftoken');
+ 
+ function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+  
+  
+  
+  
+  function changeShowAndDisplay(r)
+  {
+   if(document.getElementById(r.title).style.display == "block")
+   {
+     document.getElementById(r.title).style.display = "none";	 
+	 r.innerHTML = "回复";
+   }
+   else
+   {
+     var replyid = r.title;
+	 replyid = replyid.slice(replyid.indexOf("_")+1);
+     document.getElementById(r.title).style.display = "block";
+	 document.getElementById("showreptorep_"+replyid).style.display = "none";
+	 document.getElementById("reptorepdiv_"+replyid).style.display = "block";
+	 
+	 r.innerHTML = "收起回复";
+   }
+  }
+  function updateReply(r)
+  {
+       var replyid = r.parentNode.id;
+       replyid = replyid.slice(replyid.indexOf("_")+1);
+	   content = document.getElementById("reptorep_"+replyid).value;
+       var datas = {'type':'reply','replyid':replyid, 'content':content};
+         $.ajax({
+             url:"{% url 'forpostdetail' post.id%}",
+             type:'POST',
+             tradition:true,   //原生模式
+             data:{data:JSON.stringify(datas)},
+             success: function(data1){ 
+			    //alert("success");
+				data1 = JSON.parse(data1);
+				console.log(data1["content"]);
+                //$("#test").text(data1["content"]);
+			    var para=document.createElement("p");
+                var node=document.createTextNode(data1["content"]);
+                para.appendChild(node);
+                var element=document.getElementById("replyinside_"+replyid);
+                element.appendChild(para);				
+            }
+           }
+ 
+         );
+  }
+      
+  function clicker(rid)
+    {
+        //var countgood=document.getElementById('countgood_'+rid).textContent;
+        //countgood++;
+        //document.getElementById('countgood_'+rid).textContent=countgood;
+       
+        var d={'replyid':rid,'whatever':'whatever'};
+         //alert(d["replyid"])
+        $.ajax({
+            url:"{% url 'countgood' %}",
+            type:'POST',
+            tradition:true,
+            data:{data:JSON.stringify(d)},
+            success:function(ret)
+            {
+                
+                ret=JSON.parse(ret);
+                
+                document.getElementById("countgood_"+rid).textContent=ret['num'];
+            }
+        });
+        
+        //alert('wtf')
+        
+    }
+ function postgoodclick(pid)
+ {
+     var d={'postid':pid,"whatever":"whatever"};
+     
+     $.ajax({
+        url:"{% url 'postcountgood' post.id post.id post.id %}" ,
+        type:'POST',
+        tradition:true,
+        data:{data:JSON.stringify(d)},
+        success:function(ret)
+        {
+            ret=JSON.parse(ret);
+           
+            document.getElementById("postgood").textContent=ret["num"];
+        }
+     });
+     
+ }
+      
+  function showreptorep(r)
+  {
+    var replyid = r.parentNode.id;
+    replyid = replyid.slice(replyid.indexOf("_")+1);
+	r.style.display = "none";
+	document.getElementById("reptorepdiv_"+replyid).style.display = "block"; 
+  }
+      
+    
+  
+  </script>
 </body>
 </html>

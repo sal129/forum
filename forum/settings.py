@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER':'root',
-        'PASSWORD':'',
-        'NAME': 'forumdatabase',
+        'PASSWORD':'vagrant',
+        'NAME': 'forumdatabasetest',
     }
 }
 
