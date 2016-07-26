@@ -111,7 +111,7 @@
                                                 <!-- Basic Home Page Template -->
                                                 <div class="row separator">
                                                         <section class="span4 articles-list">
-                                                                <h3>新鲜主题（进入分类后方能发贴）</h3>
+                                                                <h3>{{column.name}}({{column.pstNum}})</h3>
                                                                 <ul class="articles">
                                                                         {% for post in posts %}
                                                                         <!-- <div>
@@ -124,11 +124,11 @@
                                                                           <span class="like-count">66</span>
                                                                         </li>
                                                                         {% endfor %}
-                                                                        <!-- <form method="POST" class="post-form">
+                                                                        <form method="POST" class="post-form">
                                                                           {% csrf_token %}
                                                                           {{form.as_p}}
-                                                                        <button type="submit" class="save btn btn-default">发表帖子</button> 
-                                                                        </form> -->
+                                                                        <button type="submit" class="save btn btn-default">回复贴子</button> 
+                                                                        </form>
                                                                         <!-- <li class="article-entry standard">
                                                                                 <h4><a href="single.html">为什么天很暗？</a></h4>
                                                                                 <span class="article-meta">2016-07-22 18:47+00:00 <a href="#" title="View all posts in Server &amp; Database"> 闲聊</a></span>

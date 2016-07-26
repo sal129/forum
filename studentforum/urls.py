@@ -24,9 +24,10 @@ urlpatterns = [
 	url(r'^modify/', views.modifyPassword, name='formodify'),
 	url(r'^infoChange/', views.changeInfo, name='forchange'),
     url(r'^postDetail/([0-9]+)$', views.showDetail, name='forpostdetail'),
+    url(r'^column/([0-9]+)$', views.showColumn, name='forcolumn'),
+    url(r'^topic/([0-9]+)$', views.showTopic, name='fortopic'),
+    url(r'^columnindex/', views.showColumnIndex, name='forcolumnindex'),
+    url(r'^topicindex/', views.showTopicIndex, name='fortopicindex'),
     url(r'^$', views.directToHome, name='toHome'),
-    url(r'^testphoto$', views.testphoto,name='test1'),
-    url(r'^showphoto$', views.showphoto,name='test2'),
-    url(r'^testWidget$', views.showWidget,name='test3'),
-    url(r'^search/', views.search,name='result')
+    url(r'^search/', views.search,name='result'),
 ]

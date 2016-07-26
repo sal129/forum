@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from .forms import LoginForm, RegisterForm, changeForm, userForm, PasswordForm, PostForm, ReplyForm, TestForm,TestWidgetForm
+from .forms import LoginForm, RegisterForm, changeForm, userForm, PasswordForm, PostForm, ReplyForm
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
-from .models import MyUser, Post, Reply
+from .models import MyUser, Post, Reply, Column, Topic
 from django.core.urlresolvers import reverse
+from itertools import chain
 # Create your views here.
 def test(request):
     posts = Post.objects.all()
@@ -139,34 +140,78 @@ def showDetail(request, postIDstr):
     replies = Reply.objects.filter(PID = post)
     return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form})
 
+def seekTopic(post):
+    contentStr = post.content
+    contentLen = len(contentStr)
+    i = 0
+    flag = 0
+    position1 = 0
+    position2 = 0
+    for i in range(0, contentLen):
+        if contentStr[i] == '#':
+            position1 = i
+            flag = 1
+            break
+    if flag == 0:
+        return
+    for i in range(position1 + 1, contentLen):
+        if contentStr[i] == '#':
+            position2 = i
+            flag = 2
+            break
+    if flag == 1 or position2 == position1 + 1:
+        return
+    return contentStr[position1 + 1 : position2]
+
+
+def showColumn(request, columnIDstr):
+    columnID = int(columnIDstr)
+    posts = Post.objects.filter(ofColumn = Column.objects.get(id = columnID))
+    temp = Column.objects.get(id = columnID)
+    temp.pstNum = posts.count()
+    temp.save()
+    form = PostForm()
+    if request.user.is_authenticated():
+        params = request.POST if request.method == 'POST' else None
+        form = PostForm(params)
+        if form.is_valid():
+            post = form.save(commit = False)
+            post.author = request.user.myuser
+            post.ofColumn = Column.objects.get(id = columnID)           
+            topicName = seekTopic(post)
+            if topicName != None:
+                if Topic.objects.filter(title = topicName).count() != 0:
+                    tempTopic = Topic.objects.get(title = topicName)
+                    tempTopic.pstNum += 1
+                    tempTopic.save()
+                    post.ofTopic = tempTopic
+                else:
+                    tempTopic = Topic()
+                    tempTopic.title = topicName
+                    tempTopic.pstNum += 1
+                    tempTopic.save()
+                    post.ofTopic = tempTopic
+            post.save()
+            form = PostForm()
+        return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp})
+    else:
+        return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp})
+
+def showTopic(request, topicIDstr):
+    topicID = int(topicIDstr)
+    topic = Topic.objects.get(id = topicID)
+    posts = Post.objects.filter(ofTopic = topic)
+    return render(request, 'studentForum/topic.html', {'posts': posts, 'topic': topic})
+
 def directToHome(request):
 	return HttpResponseRedirect("/home")
 
-def testphoto(request):
-    form = TestForm()
-    if request.method == 'POST':
-        rarams = request.POST
-        form = TestForm(request.POST,request.FILES)
-        print(1)
-        if form.is_valid():
-            print(2)
-            photo = form.save(commit = True)
-            form = TestForm(instance = photo)
-            print(form)
-            #return render(request, 'studentForum/showphoto.html',{'photo':photo})
-    return render(request, 'studentForum/testphoto.html', {'form': form})
-
-def showphoto(request):
-    return render(request, 'studentForum/showphoto.html')
-
 def search(request):
     key = request.GET['q']
-    posts=Post.objects.filter(title__icontains=key)
+    posts1 = Post.objects.filter(title__icontains=key)
+    posts2 = Post.objects.filter(content__icontains=key)
+    posts = posts1 | posts2
     if not posts:
         return render(request,'studentForum/nothingmatch.html',{})
     else:
         return render(request,'studentForum/result.html',{'posts':posts})
-
-def showWidget(request):
-    form = TestWidgetForm()
-    return render(request, 'studentForum/testWidget.html', {'form': form})

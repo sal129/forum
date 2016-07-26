@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Post, Reply, MyUser, Test, ForWidgetTest
+from .models import Post, Reply, MyUser
 from django.utils.translation import ugettext_lazy as _
 from django.forms import Widget
 
@@ -69,22 +69,3 @@ class PasswordForm(forms.Form):
         label=_("password"),
         widget=forms.PasswordInput,
     )
-
-class TestForm(forms.ModelForm):
-	photo = forms.ImageField( label=_("照片"),widget=forms.ClearableFileInput,) 
-	photo.widget.initial_text = _('当前')
-	photo.widget.input_text = _('修改')
-	photo.widget.clear_checkbox_label = _('清除')
-	photo.widget.template_with_initial = (
-        '<br />%(initial_text)s<img src="%(initial_url)s" width = "100" height = "100"> '
-        '%(clear_template)s<br />%(input_text)s %(input)s'
-    )
-	class Meta:
-		model = Test
-		fields = ('photo',)
-
-
-class TestWidgetForm(forms.ModelForm):
-	class Meta:
-		model = ForWidgetTest
-		fields = ('title','content')
