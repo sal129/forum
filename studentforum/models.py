@@ -21,6 +21,7 @@ class MyUser(models.Model):
     likeRst = models.ManyToManyField('Reply',related_name = "likepersonlist")
     reportPst = models.ManyToManyField('Post',related_name = "reportposts")
     reportRst = models.ManyToManyField('Reply',related_name = "reportreplies")
+    reportRpytoRpy = models.ManyToManyField('ReplytoReply',related_name = "reportreptorep")
     collectClsNum = models.IntegerField(default = 0)
     collectCls = models.ManyToManyField('Column')
     def __str__(self):
@@ -126,6 +127,14 @@ class PostTotal(models.Model):
 	firstReportTime = models.DateTimeField(default = timezone.now)
 	reportNum = models.PositiveIntegerField(default = 0)
 	publishTime = models.DateTimeField(default = timezone.now)
+	ischecked = models.BooleanField(default = False)
+	def __str__(self):
+		if self.type1 == 0:
+			return self.forpost.__str__()
+		elif self.type1 == 1:
+			return self.forreply.__str__()
+		elif self.type1 == 2:
+			return self.forreplytoreply.__str__()
 
 class ForWidgetTest(models.Model):
 	content = models.CharField(max_length = 100, verbose_name = " 内容")

@@ -36,5 +36,7 @@ urlpatterns = [
     url(r'^download/replyattachment/([0-9]+)$',views.downloadreply,name="downloadreply"),
     url(r'^postDetail/$',views.countgood,name="countgood"),
     url(r'^postDetail/([0-9]+)/([0-9]+)/([0-9]+)/$',views.postcountgood,name="postcountgood"),
+    url(r'^showReportList$',views.showreportlist,name="showreportlist"),
+    url(r'^showtocheckList$',views.showtochecklist,name="showtochecklist"),
     #url(r'^download/replyattachment/([0-9]+)$',views.testdownload,name="downloadtest")
 ]

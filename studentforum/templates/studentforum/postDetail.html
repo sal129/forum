@@ -30,7 +30,7 @@
   {% if post.attachment %}
   <p><span>附件</span><span onclick = "download(this)">{{postfilename}}</span></p>
   {% endif %}
-  回复时间{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span></p><span onclick='reportPost({{post.id}})'>&nbsp;举报</span></p>
+  回复时间{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span></p><span onclick='reportPost({{post.id}})'>&nbsp;举报</span></p><!--<span onclick='deletepostlike({{post.id}},0)'>&nbsp;删除</span>-->
   <hr>
   {% for reply in replylist %}
   {%if reply.belongToAuthor == "True"%}
@@ -52,7 +52,7 @@
         
 	<div id = "replyinside_{{reply.reply1.id}}">
      {%for rr in reply.reply1.replytoreply_set.all%}
-     <p>{{rr.content}}</p>   	 
+     <p>{{rr.content}}<span onclick='reportreplytoreply({{rr.id}})'>&nbsp;举报</span></p>  	 
      {%endfor%}
 	  </div>
 	 <span id = "showreptorep_{{reply.reply1.id}}" onclick = "showreptorep(this)" style = "display:block;">我也说一句</span>
@@ -137,8 +137,16 @@ $.ajaxSetup({
 			    var para=document.createElement("p");
                 var node=document.createTextNode(data1["content"]);
                 para.appendChild(node);
+				var spanON = document.createElement("span"); 
+				spanON.innerHTML = "举报";
+				spanON.title = String(data1["reptorep"]);
+				spanON.id = "reportreptorep_"+String(data1["reptorep"])
+				para.appendChild(spanON);
                 var element=document.getElementById("replyinside_"+replyid);
-                element.appendChild(para);				
+                element.appendChild(para);
+                document.getElementById("reportreptorep_"+String(data1["reptorep"])).onclick = function (r = this){
+				reportreplytoreply(this.title);
+				} 				
             }
            }
  
@@ -246,22 +254,13 @@ $.ajaxSetup({
 	 function reportPost(postid)
 	 {
        var datas = {'type':'reportpost','postid':postid};
-	   		     alert("start");
+	   		     //alert("start");
          $.ajax({
              url:"{% url 'forpostdetail' post.id%}",
              type:'POST',
              tradition:true,   //原生模式
              data:{data:JSON.stringify(datas)},
-             success: function(data1){ 
-			    alert("success");
-				/*data1 = JSON.parse(data1);
-				console.log(data1["content"]);
-                //$("#test").text(data1["content"]);
-			    var para=document.createElement("p");
-                var node=document.createTextNode(data1["content"]);
-                para.appendChild(node);
-                var element=document.getElementById("replyinside_"+replyid);
-                element.appendChild(para);*/			
+             success: function(data1){ 			
             }
            }
  
@@ -270,28 +269,32 @@ $.ajaxSetup({
 	 
 	 function reportReply(replyid)
 	 {
-	 var replyid = r.parentNode.id;
-       replyid = replyid.slice(replyid.indexOf("_")+1);
-	   content = document.getElementById("reptorep_"+replyid).value;
-       var datas = {'type':'reply','replyid':replyid, 'content':content};
+       var datas = {'type':'reportreply','replyid':replyid};
          $.ajax({
-             url:"{% url 'forpostdetail' post.id%}",
+			url:"{% url 'forpostdetail' post.id%}",
              type:'POST',
              tradition:true,   //原生模式
              data:{data:JSON.stringify(datas)},
-             success: function(data1){ 
-			    //alert("success");
-				data1 = JSON.parse(data1);
-				console.log(data1["content"]);
-                //$("#test").text(data1["content"]);
-			    var para=document.createElement("p");
-                var node=document.createTextNode(data1["content"]);
-                para.appendChild(node);
-                var element=document.getElementById("replyinside_"+replyid);
-                element.appendChild(para);				
+             success: function(data1){ 			
             }
            }
- 
+         );
+	 }
+	 function reportreplytoreply(reptorepid)
+	 {
+	 if(typeof reptorepid == "string")
+	 {
+	 reptorepid = parseInt(reptorepid)
+	 }
+	 var datas = {'type':'reportreplytoreply','reptorepid':reptorepid};
+         $.ajax({
+			url:"{% url 'forpostdetail' post.id%}",
+             type:'POST',
+             tradition:true,   //原生模式
+             data:{data:JSON.stringify(datas)},
+             success: function(data1){ 			
+            }
+           }
          );
 	 }
  </script>

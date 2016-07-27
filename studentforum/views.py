@@ -199,20 +199,63 @@ def showDetail(request, postIDstr):
             post.save()
             fortotal = PostTotal()
             fortotal.type1 = 2
-            fortotal.forpost = reptorep1
+            fortotal.forreplytoreply = reptorep1
             fortotal.save()
-            return HttpResponse(json.dumps({"content":reptorep1.content,"author":reptorep1.author.user.username}))
+            return HttpResponse(json.dumps({"content":reptorep1.content,"author":reptorep1.author.user.username,"reptorep":reptorep1.id}))
         elif req["type"] == "reportpost":
+            post = Post.objects.get(id = int(req["postid"]))
             tempt = Post.objects.get(id = int(req["postid"])).posttotal
             tempt.type = 0
-            if tempt.reportNum == 0:
-                tempt.firstReportTime = timezone.now
-                tempt.reportNum = 1
-            else:
-                tempt.reportNum = tempt.reportNum + 1
-            tempt.save()
-
-
+            if not request.user.myuser in post.reportposts.all():
+                request.user.myuser.reportPst.add(post)
+                if tempt.reportNum == 0:
+                    #print("1")
+                    tempt.firstReportTime = timezone.now()
+                    tempt.reportNum = 1
+                elif tempt.ischecked==True:
+                    tempt.firstReportTime = timezone.now()
+                    tempt.reportNum = tempt.reportNum + 1
+                    tempt.ischecked = False
+                else:
+                    #print("2")
+                    tempt.reportNum = tempt.reportNum + 1
+                print(tempt.reportNum)
+                tempt.save()
+                print(tempt)
+            return HttpResponse(json.dumps({"content":""}))  
+        elif req["type"] == "reportreply":
+            reply = Reply.objects.get(id = int(req["replyid"]))
+            tempt = Reply.objects.get(id = int(req["replyid"])).posttotal
+            tempt.type = 1
+            if not request.user.myuser in reply.reportreplies.all():
+                request.user.myuser.reportRst.add(reply)
+                if tempt.reportNum == 0:
+                    #print("1")
+                    tempt.firstReportTime = timezone.now()
+                    tempt.reportNum = 1
+                else:
+                    #print("2")
+                    tempt.reportNum = tempt.reportNum + 1
+                print(tempt.reportNum)
+                tempt.save()
+                print(tempt)
+            return HttpResponse(json.dumps({"content":""}))
+        elif req["type"] == "reportreplytoreply":
+            reptorep = ReplytoReply.objects.get(id = int(req["reptorepid"]))
+            tempt = ReplytoReply.objects.get(id = int(req["reptorepid"])).posttotal
+            tempt.type = 2
+            if not request.user.myuser in reptorep.reportreptorep.all():
+                request.user.myuser.reportRpytoRpy.add(reptorep)
+                if tempt.reportNum == 0:
+                    #print("1")
+                    tempt.firstReportTime = timezone.now()
+                    tempt.reportNum = 1
+                else:
+                    #print("2")
+                    tempt.reportNum = tempt.reportNum + 1
+                print(tempt.reportNum)
+                tempt.save()
+                print(tempt)
             return HttpResponse(json.dumps({"content":""}))
 
     postID = int(postIDstr)
@@ -241,7 +284,7 @@ def showDetail(request, postIDstr):
                 post.save()
                 fortotal = PostTotal()
                 fortotal.type1 = 1
-                fortotal.forpost = reply
+                fortotal.forreply = reply
                 fortotal.save()
 
 
@@ -430,3 +473,112 @@ def testdownload(request):
          print(1)
          return response
      return big_file_download(request)
+
+def showreportlist(request):
+
+    # posts = []
+    # for posttempt1 in posttempt:
+    #     posts.append({"reportinside":posttempt1.forpost,"posttotal":})
+    # print(posts) 
+     if request.method == 'POST':
+        if "post" in request.POST:
+            postid = int(request.POST["id"])
+            listtempt = []
+            if listtempt:
+                print("understanderror")
+            if Post.objects.all().filter(id = postid):
+                print(Reply.objects.all())
+                print(ReplytoReply.objects.all())
+                tempt = Post.objects.all().get(id = postid)
+                tempt.delete()
+                print(Reply.objects.all())
+                print(ReplytoReply.objects.all())
+        elif "reply" in request.POST:
+            replyid = int(request.POST["id"])
+            if Reply.objects.all().filter(id = replyid):
+                tempt = Reply.objects.all().get(id = replyid)
+                tempt.delete()
+        elif "replytoreply" in request.POST:
+            reptorepid = int(request.POST["id"])
+            if ReplytoReply.objects.all().filter(id = reptorepid):
+                tempt = ReplytoReply.objects.all().get(id = reptorepid)
+                tempt.delete()
+        elif "passcheck" in request.POST:
+            id1 = int(request.POST["id"])
+            if(request.POST["type"] == "post"):
+                if Post.objects.all().filter(id = id1):
+                    print("postpass")
+                    tempt = Post.objects.all().get(id = id1).posttotal
+                    tempt.ischecked = True
+                    tempt.save()
+            elif(request.POST["type"] == "reply"):
+                if Reply.objects.all().filter(id = id1):
+                    tempt = Reply.objects.all().get(id = id1).posttotal
+                    tempt.ischecked = True
+                    tempt.save()
+            elif(request.POST["type"] == "replytoreply"):
+                if ReplytoReply.objects.all().filter(id = id1):
+                    tempt = ReplytoReply.objects.all().get(id = id1).posttotal
+                    tempt.ischecked = True      
+                    tempt.save() 
+
+     posts1 = PostTotal.objects.all().filter(reportNum__gt = 0)
+     posts2 = PostTotal.objects.all().filter(ischecked= False)
+     posts = (posts1 & posts2).order_by('firstReportTime')
+
+            #return render(request, 'studentForum/showphoto.html',{'photo':photo})
+     return render(request, 'studentForum/reportpostlist.html', {'posts': posts})
+
+def showtochecklist(request):
+
+    # posts = []
+    # for posttempt1 in posttempt:
+    #     posts.append({"reportinside":posttempt1.forpost,"posttotal":})
+    # print(posts) 
+     if request.method == 'POST':
+        if "post" in request.POST:
+            postid = int(request.POST["id"])
+            listtempt = []
+            if listtempt:
+                print("understanderror")
+            if Post.objects.all().filter(id = postid):
+                print(Reply.objects.all())
+                print(ReplytoReply.objects.all())
+                tempt = Post.objects.all().get(id = postid)
+                tempt.delete()
+                print(Reply.objects.all())
+                print(ReplytoReply.objects.all())
+        elif "reply" in request.POST:
+            replyid = int(request.POST["id"])
+            if Reply.objects.all().filter(id = replyid):
+                tempt = Reply.objects.all().get(id = replyid)
+                tempt.delete()
+        elif "replytoreply" in request.POST:
+            reptorepid = int(request.POST["id"])
+            if ReplytoReply.objects.all().filter(id = reptorepid):
+                tempt = ReplytoReply.objects.all().get(id = reptorepid)
+                tempt.delete()
+        elif "passcheck" in request.POST:
+            id1 = int(request.POST["id"])
+            if(request.POST["type"] == "post"):
+                if Post.objects.all().filter(id = id1):
+                    print("postpass")
+                    tempt = Post.objects.all().get(id = id1).posttotal
+                    tempt.ischecked = True
+                    tempt.save()
+            elif(request.POST["type"] == "reply"):
+                if Reply.objects.all().filter(id = id1):
+                    tempt = Reply.objects.all().get(id = id1).posttotal
+                    tempt.ischecked = True
+                    tempt.save()
+            elif(request.POST["type"] == "replytoreply"):
+                if ReplytoReply.objects.all().filter(id = id1):
+                    tempt = ReplytoReply.objects.all().get(id = id1).posttotal
+                    tempt.ischecked = True      
+                    tempt.save() 
+
+     posts = PostTotal.objects.all().filter(ischecked= False).order_by('publishTime')
+
+            #return render(request, 'studentForum/showphoto.html',{'photo':photo})
+     return render(request, 'studentForum/tochecklist.html', {'posts': posts})
+
