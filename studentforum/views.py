@@ -18,6 +18,7 @@ import json
 #register.simple_tag(reprep_tag)
 # Create your views here.
 switch=False
+
 def test(request):
     posts = Post.objects.all()
     form = PostForm()
@@ -163,8 +164,19 @@ def showDetail(request, postIDstr):
         reply.save()
         form = ReplyForm()
     replies = Reply.objects.filter(PID = post)
-
-    return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form})
+    isfavor=False
+    print(request.user.myuser.collectPst)
+    print(request.user.myuser.collectPstNum)
+    if request.user.myuser.collectPst.filter(id=post.id).exists():
+        print("IT EXSITS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(post.content)
+        print("isfavor is {0}".format(isfavor))
+        isfavor=True
+        
+    else:
+        print("there is no such post!!!!!!!!!!!!!!")
+    print("now isfavor is {0}".format(isfavor))
+    return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form,'isfavor':isfavor})
 
 
 
@@ -195,7 +207,39 @@ def postcountgood(request,w,h,atever):
         post.save()
         return HttpResponse(json.dumps({"num":post.supportNum,"whatever":"whatever"}))
         
-        
+@ensure_csrf_cookie
+def postfavor(request,w,h,a,tever):
+    if request.is_ajax and request.user.is_authenticated():
+        #global req
+        req=json.loads(request.POST["data"])
+        #print(request.user.myuser.id)
+        print(req["target"])
+        #print(typeof(req["target"]))
+        #st=
+        if str(req["target"]) == "include":
+            req=json.loads(request.POST["data"])
+            print("this is include")
+            post=Post.objects.get(id=int(req["postid"]))
+            user=request.user.myuser
+            user.collectPst.add(post)
+            tmp=user.collectPstNum+1
+            user.collectPstNum=tmp
+            print(user.collectPstNum)
+            user.save()
+            post.save()
+            print("this is include")
+            return HttpResponse(json.dumps({"num":user.collectPstNum,"message":"已收藏，点击取消收藏"}))
+        if str(req["target"]) == "exclude":
+            #global req
+            req=json.loads(request.POST["data"])
+            post=Post.objects.get(id=int(req["postid"]))
+            user=request.user.myuser
+            user.collectPst.remove(post)
+            tmp=user.collectPstNum-1
+            user.collectPstNum=tmp
+            user.save()
+            return HttpResponse(json.dumps({"num":user.collectPstNum,"message":"收藏该贴"}))
+
         
 def replytoreply(request,replyIDstr,postIDstr):
     postID=int(postIDstr)

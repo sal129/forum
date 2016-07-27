@@ -8,7 +8,14 @@
     <script>
     window.onload=function()
     {
+        
+        {%if isfavor %}
+        document.getElementById("postfavor").textContent=" 已收藏，点击取消收藏";
+        {%else%}
+        document.getElementById("postfavor").textContent=" 收藏该贴";
+         {%endif%}
         document.getElementById("postgood").textContent={{post.supportNum}};
+        
         {%for reply in replies%}
         var rep=document.getElementById("countgood_"+{{reply.id}});
         rep.textContent={{reply.supportNum}};
@@ -25,7 +32,7 @@
     
   <h1> {{post.title}} </h1>
   <p>{{post.content}}</p>
-    <p><b>{{post.author}}</b>发帖于{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span></p>
+    <p><b>{{post.author}}</b>发帖于{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span><span id="postfavor" onclick="postfavorclick({{post.id}})"> 收藏该贴</span></p>
     
   <hr>
   {% for reply in replies %}
@@ -176,7 +183,50 @@ $.ajaxSetup({
      });
      
  }
-      
+ function postfavorclick(pid)
+ {
+     var d={};
+      //alert('wtk')
+     //alert(pid)
+    
+     if(document.getElementById("postfavor").textContent==" 收藏该贴")
+     {
+         
+         
+         d={"postid":pid,"target":"include"};
+         //alert(d["postid"]))
+         $.ajax({
+            url:"{% url 'postfavor' post.id post.id post.id post.id %}",
+            type:'POST',
+            tradition:true,
+            data:{data:JSON.stringify(d)},
+            success:function(ret)
+             {
+                 ret=JSON.parse(ret);
+                //alert('wtk')
+                 document.getElementById("postfavor").textContent=" "+ret["message"];
+             }
+         });
+         //alert('a')
+     }
+     else if(document.getElementById("postfavor").textContent==" 已收藏，点击取消收藏")
+    {
+        d={"postid":pid,"target":"exclude"};
+        $.ajax({
+            url:"{% url 'postfavor' post.id post.id post.id post.id %}",
+            type:'POST',
+            tradition:true,
+            data:{data:JSON.stringify(d)},
+            success:function(ret)
+             {
+                 ret=JSON.parse(ret);
+                 document.getElementById("postfavor").textContent=" "+ret["message"];
+             }
+         });
+    }
+ }
+
+
   function showreptorep(r)
   {
     var replyid = r.parentNode.id;
@@ -185,7 +235,7 @@ $.ajaxSetup({
 	document.getElementById("reptorepdiv_"+replyid).style.display = "block"; 
   }
       
-    
+
   
   </script>
 </body>

@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^postDetail/([0-9]+)/$', views.showDetail, name='forpostdetail'),
     url(r'^postDetail/([0-9]+)/([0-9]+)/$',views.reptorep,name='reptorep'),
     url(r'^postDetail/([0-9]+)/([0-9]+)/([0-9]+)/$',views.postcountgood,name="postcountgood"),
+    url(r'^postDetail/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/$',views.postfavor,name="postfavor"),
     url(r'^$', views.directToHome, name='toHome'),
 
     url(r'^search/', views.search,name='result'),
