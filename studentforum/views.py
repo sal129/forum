@@ -51,13 +51,30 @@ def test(request):
 	
 def login(request):
     form = RegisterForm1()
+    
+        
+    usergroup=MyUser.objects.all()
+    for u in usergroup:
+        print(u.isdeleted)
     if request.user.is_authenticated():
-        return HttpResponseRedirect("/home")
+        print("request.user is {0}".format(request.user.myuser.isdeleted))
+        if request.user.isdeleted==False:
+            return HttpResponseRedirect("/home")
+        else:
+            return render(request, "studentforum/nothingmatch.html", {'form': form}) 
     if request.method == 'POST':
         username = request.POST.get('username', '')
+        usergroup=MyUser.objects.all()
+        check=False
+        for u in usergroup:
+            print(u.isdeleted)
+            if u.user.username==username and u.isdeleted==True:
+                check=True
+        if check==True:
+            return render(request, "studentforum/login.html", {'form': form})
         password = request.POST.get('password', '')
         user = auth.authenticate(username=username, password=password)
-        if user is not None:
+        if user is not None :
             if user.is_active:
                 auth.login(request, user)
                 return HttpResponseRedirect('/home')
@@ -165,13 +182,14 @@ def showDetail(request, postIDstr):
         form = ReplyForm()
     replies = Reply.objects.filter(PID = post)
     isfavor=False
-    print(request.user.myuser.collectPst)
-    print(request.user.myuser.collectPstNum)
-    if request.user.myuser.collectPst.filter(id=post.id).exists():
-        print("IT EXSITS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(post.content)
-        print("isfavor is {0}".format(isfavor))
-        isfavor=True
+    #print(request.user.myuser.collectPst)
+    #print(request.user.myuser.collectPstNum)
+    if request.user.is_authenticated():
+        if request.user.myuser.collectPst.filter(id=post.id).exists():
+            print("IT EXSITS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(post.content)
+            print("isfavor is {0}".format(isfavor))
+            isfavor=True
         
     else:
         print("there is no such post!!!!!!!!!!!!!!")
@@ -240,6 +258,9 @@ def postfavor(request,w,h,a,tever):
             user.save()
             return HttpResponse(json.dumps({"num":user.collectPstNum,"message":"收藏该贴"}))
 
+
+    
+        #user
         
 def replytoreply(request,replyIDstr,postIDstr):
     postID=int(postIDstr)
@@ -257,7 +278,19 @@ def replytoreply(request,replyIDstr,postIDstr):
     post=Post.objects.get(id=postID)
    
     return render(request,'studentForum/replyDetail.html',{'replytoreplies':replytoreplies,'reply':reply,'reprepform':form,'post':post})
-
+def deluser(request,uid):
+    user=MyUser.objects.get(user_id=uid)
+    
+    user.isdeleted=True
+    user.save()
+    usergroup=MyUser.objects.all()
+    print('whatthehell')
+    print(user.isdeleted)
+    for u in usergroup:
+        print(u.user_id)
+        print(u.isdeleted)
+    return render(request,'studentForum/userinfo.html',{'usergroup':usergroup})
+    
 def reptorep(request,replyIDstr,postIDstr):
     postID = int(postIDstr)
     rarams = request.POST if request.method == 'POST' else None
@@ -283,3 +316,15 @@ def reptorep(request,replyIDstr,postIDstr):
     print(reprep)
     print(reply_.showrr)
     return render(request,'studentForum/postDetail.html',{'reprep':reprep,'replies': replies, 'post': post, 'form': form,'switch':switch, 'replyId':replyid})
+
+
+###删除账号
+def delete_account(request):
+    usergroup=MyUser.objects.all()
+    #for user in usergroup:
+        #print(user.user.id)
+    # user=MyUser.objects.get(user_id=1)
+    return render(request,'studentForum/userinfo.html',{'usergroup':usergroup})
+    #return render(request,'studentForum/usermanage.html',{'user':user})
+    #user=MyUser.user.filter(id=userid)
+    #print 

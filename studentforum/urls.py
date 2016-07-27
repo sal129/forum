@@ -32,7 +32,12 @@ urlpatterns = [
     url(r'^postDetail/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/$',views.postfavor,name="postfavor"),
     url(r'^$', views.directToHome, name='toHome'),
 
-    url(r'^search/', views.search,name='result'),
+    url(r'^search/$', views.search,name='result'),
     url(r'^replyDetails/([0-9]+)/([0-9]+)/$',views.replytoreply,name='replytoreply'),
-   
+    
+
+    
+    url(r'^deluser/([0-9]+)/$',views.deluser,name='deluser'),
+    url(r'^userinfo/$',views.delete_account,name='delete_account'),
+    
 ]

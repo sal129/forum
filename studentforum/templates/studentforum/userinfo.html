@@ -1,0 +1,52 @@
+
+{% load staticfiles %}
+<html>
+<head>
+    
+    
+    
+</head>
+
+<body>
+<!--<a href=" {%url 'delete_account'%}">显示用户列表</a>  /*onclick="del({{user.user_id}})"*/-->
+    {%for user in usergroup%}
+    {%if not user.isdeleted%}
+    <div id="user_{{user.user_id}}">
+        
+        <p>user_id:{{user.user_id}}<span ><a href="{%url 'deluser' user.user_id%}"> 删除</a></span></p>
+    <p>{{user.isdeleted}}</p>
+    <p>username:{{user.user.username}}</p>
+    <p>userpassword:{{user.user.password}}</p>
+    </div>
+    {%endif%}
+    {%endfor%}
+    
+    
+<script>
+    function del(uid)
+    {
+        var d={'userid':uid,'whatever':'whatever'};
+         //alert(d['userid']);
+        
+        $.ajax({
+           url:"{% url 'deluser' 2 %}" ,
+           type:'POST',
+           tradition:true,
+            data:{data:JSON.stringify(d)},
+            success:function(ret)
+            {
+                ret=JSON.parse(ret);
+                alert('alert');
+                document.getElementById('user_'+uid).innerHTML="";
+            }
+        });
+    }
+    
+    
+    
+    
+</script>
+</body>
+
+
+</html>

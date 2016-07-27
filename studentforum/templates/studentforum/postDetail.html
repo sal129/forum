@@ -29,12 +29,18 @@
 <body>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <div id="topForBack"><a href="{% url 'test' %}">返回首页</a></div>
-    
+    {%if not post.author.isdeleted %}
   <h1> {{post.title}} </h1>
   <p>{{post.content}}</p>
     <p><b>{{post.author}}</b>发帖于{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span><span id="postfavor" onclick="postfavorclick({{post.id}})"> 收藏该贴</span></p>
+    {%else%}
+    <hr>
+    <hr>
+    <h1><p style="color:red">该用户已经被删除，发表内容不能查看</p></h1>
     
+    {%endif%}
   <hr>
+    
   {% for reply in replies %}
  <div>
     <h4>{{reply.content}}</h4>

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone 
 class MyUser(models.Model):
     user = models.OneToOneField(User, primary_key = True, default = 4)
+    isdeleted=models.BooleanField(default=False)
     #sexuality = models.BooleanField(default = True)
     intro = models.TextField(max_length = 500, null = True)
     url_height = models.PositiveIntegerField(null = True)
