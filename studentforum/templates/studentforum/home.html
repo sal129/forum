@@ -55,23 +55,16 @@
                                         <nav class="main-nav">
                                                 <div class="menu-top-menu-container">
                                                         <ul id="menu-top-menu" class="clearfix">
-                                                                <li ><a href="index-2.html">新鲜话题</a></li>
-                                                                <li><a href="home-categories-description.html">热帖排行</a></li>
-                                                                <li><a href="home-categories-articles.html">人气专栏</a></li>
-                                                                <li><a href="articles-list.html">全部分类</a></li>
-                                                                <li><a href="faq.html">FAQs</a></li>
-                                                                <li><a href="#">Skins</a>
-                                                                        <ul class="sub-menu">
-                                                                                <li><a href="blue-skin.html">Blue Skin</a></li>
-                                                                                <li class="current-menu-item"><a href="green-skin.html">Green Skin</a></li>
-                                                                                <li><a href="red-skin.html">Red Skin</a></li>
-                                                                                <li><a href="index-2.html">Default Skin</a></li>
-                                                                        </ul>
-                                                                </li>
-                                                                <li><a href="{% url 'forlogin' %}">登录</a>
-                                                                        
-                                                                </li>
+                                                                <li><a href="{% url 'fortopicindex' %}">所有话题</a></li>
+                                                                <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
+                                                                {% if request.user.is_authenticated %}
+                                                                <li><a href="{% url 'forlogout' %}">登出</a></li>
+                                                                <li><a href="{% url 'forchange' request.user.id %}">个人中心</a></li>
+                                                                <li><a href="{% url 'formodify' %}">修改密码</a></li>
+                                                                {% else %}
+                                                                <li><a href="{% url 'forlogin' %}">登录</a></li>
                                                                 <li><a href="{% url 'forregister' %}">注册</a></li>
+                                                                {% endif %}
                                                                 <li><a href="{% url 'toHome' %}">返回主页</a></li>
                                                         </ul>
                                                 </div>
@@ -121,7 +114,7 @@
                                                                         </div> -->
                                                                         <li class="article-entry standard">
                                                                           <h4><a href="{% url 'forpostdetail' post.id %}">{{post.title}}</a></h4>
-                                                                          <span class="article-meta">{{post.created_at}}<a href="#" title="View all posts in Server &amp; Database">&nbsp&nbsp&nbsp{{post.author}}</a><a href="{% url 'forcolumn' post.ofColumn.id %}">&nbsp&nbsp&nbsp{{post.ofColumn}}</a></span>
+                                                                          <span class="article-meta">{{post.created_at}}<a href="{% url 'forchange' post.author.user.id %}" title="View all posts in Server &amp; Database">&nbsp&nbsp&nbsp{{post.author}}</a><a href="{% url 'forcolumn' post.ofColumn.id %}">&nbsp&nbsp&nbsp{{post.ofColumn}}</a></span>
                                                                           <span class="like-count">66</span>
                                                                         </li>
                                                                         {% endfor %}
@@ -220,7 +213,7 @@
                                                         <div class="tagcloud">
                                                                 <a href="{% url 'forcolumn' 1 %}" class="btn btn-mini">测试</a>
                                                                 <a href="{% url 'forcolumn' 2 %}" class="btn btn-mini">闲聊</a>
-                                                                <a href="{% url 'forcolumn' 2 %}" class="btn btn-mini">闲聊</a>
+                                                                <a href="{% url 'forcolumn' 3 %}" class="btn btn-mini">美食</a>
                                                                
                                                         </div>
                                                         <h3 class="title">热点话题</h3>

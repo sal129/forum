@@ -100,7 +100,9 @@ def modifyPassword(request):
 	else:
 		return HttpResponseRedirect("/home")
 
-def changeInfo(request):
+def changeInfo(request, infoIDstr):
+    infoID = int(infoIDstr)
+    ofUser = User.objects.get(id = infoID).myuser
     if request.user.is_authenticated():
         form = changeForm()
         form1 = userForm()
@@ -113,7 +115,6 @@ def changeInfo(request):
                print(request.FILES['portrait'])
                request.user.myuser.intro = request.POST['intro']
                request.user.email = request.POST['email']
-               request.user.username = request.POST['username']
                if 'portrait' in request.FILES:
                     request.user.myuser.portrait = form.cleaned_data['portrait']
                request.user.myuser.save()
@@ -122,7 +123,7 @@ def changeInfo(request):
                form1 = userForm(instance = request.user)
         form = changeForm(instance = request.user.myuser)
         form1 = userForm(instance = request.user)
-        return render(request, "studentforum/infoChange.html", {'form': form, 'form1': form1})
+        return render(request, "studentforum/infoChange.html", {'form': form, 'form1': form1, 'user': ofUser})
     else:
         return HttpResponseRedirect("/home")
 		
@@ -197,11 +198,49 @@ def showColumn(request, columnIDstr):
     else:
         return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp})
 
+def follow(request, followIDstr):
+    followID = int(followIDstr)
+    ofUser = User.objects.get(id = followID).myuser
+    currentUser = request.user.myuser
+    if ofUser in currentUser.follow.all():
+        currentUser.follow.remove(ofUser)
+        currentUser.followNum -= 1
+        ofUser.fansNum -= 1
+        ofUser.save()
+        currentUser.save()
+        return HttpResponseRedirect("/infoChange/" + str(followID))
+    currentUser.follow.add(ofUser)
+    currentUser.followNum += 1
+    ofUser.fansNum += 1
+    ofUser.save()
+    currentUser.save()
+    return HttpResponseRedirect("/infoChange/" + str(followID))
+
+def showFollow(request, userIDstr):
+    userID = int(userIDstr)
+    tempUser = User.objects.get(id = userID)
+    follow = tempUser.myuser.follow.all()
+    return render(request, 'studentForum/followlist.html', {'follow': follow, 'user': tempUser.myuser})
+
+def showFans(request, userIDstr):
+    userID = int(userIDstr)
+    tempUser = User.objects.get(id = userID)
+    fans = tempUser.myuser.myuser_set.all()
+    return render(request, 'studentForum/fanslist.html', {'fans': fans, 'user': tempUser.myuser})
+
+def showColumnIndex(request):
+    columns = Column.objects.all()
+    return render(request, 'studentForum/columnindex.html', {'columns': columns})
+
 def showTopic(request, topicIDstr):
     topicID = int(topicIDstr)
     topic = Topic.objects.get(id = topicID)
     posts = Post.objects.filter(ofTopic = topic)
     return render(request, 'studentForum/topic.html', {'posts': posts, 'topic': topic})
+
+def showTopicIndex(request):
+    topics = Topic.objects.all()
+    return render(request, 'studentForum/topicindex.html', {'topics': topics})
 
 def directToHome(request):
 	return HttpResponseRedirect("/home")
@@ -211,7 +250,4 @@ def search(request):
     posts1 = Post.objects.filter(title__icontains=key)
     posts2 = Post.objects.filter(content__icontains=key)
     posts = posts1 | posts2
-    if not posts:
-        return render(request,'studentForum/nothingmatch.html',{})
-    else:
-        return render(request,'studentForum/result.html',{'posts':posts})
+    return render(request,'studentForum/result.html',{'posts':posts})

@@ -51,7 +51,7 @@ class changeForm(forms.ModelForm):
 class userForm(forms.ModelForm):
 	class Meta:
 		model = User
-		fields = ('username','email')		
+		fields = ('email',)		
 		
 class PostForm(forms.ModelForm):
 	class Meta:

@@ -53,11 +53,8 @@
                                     <nav class="main-nav">
                                         <div class="menu-top-menu-container">
                                             <ul id="menu-top-menu" class="clearfix">
-                                                <li><a href="index-2.html">新鲜话题</a></li>
-                                                <li><a href="home-categories-description.html">热帖排行</a></li>
-                                                <li><a href="home-categories-articles.html">人气专栏</a></li>
-                                                <li><a href="articles-list.html">全部分类</a></li>
-                                                <li><a href="faq.html">FAQs</a></li>
+                                                <li><a href="{% url 'fortopicindex' %}">所有话题</a></li>
+                                                <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
                                                 <li>
                                                     <a href="#">Skins</a>
                                                     <ul class="sub-menu">
@@ -67,11 +64,8 @@
                                                         <li><a href="index-2.html">Default Skin</a></li>
                                                     </ul>
                                                 </li>
-                                                <li>
-                                                    <a href="#">登录</a>
-                                                    
-                                                </li>
-                                                <li><a href="register.html">注册</a></li>
+                                                <li><a href="{% url 'forlogin' %}">登录</a></li>
+                                                <li><a href="{% url 'forregister' %}">注册</a></li>
                                                 <li><a href="{% url 'toHome' %}">返回主页</a></li>
                                             </ul>
                                         </div>

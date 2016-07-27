@@ -7,16 +7,16 @@ class MyUser(models.Model):
     intro = models.TextField(max_length = 500, null = True)
     url_height = models.PositiveIntegerField(null = True)
     url_width = models.PositiveIntegerField(null = True)
-    portrait = models.ImageField( upload_to = "studentforum/portraits", height_field="url_height", width_field="url_width",null = True)
+    portrait = models.ImageField( upload_to = "studentforum/portraits", height_field="url_height", width_field="url_width", null = True)
     manageType = models.IntegerField(default = 0)#0: 普通用户    1：column管理员   2：总管理员
     score = models.IntegerField(default = 0)
     age = models.IntegerField(default = 0)
     followNum = models.IntegerField(default = 0)
-    follow = models.ManyToManyField('MyUser')
+    follow = models.ManyToManyField('MyUser', symmetrical = False, null = True)
     fansNum = models.IntegerField(default = 0)
     pstNum = models.IntegerField(default = 0)
     collectPstNum = models.IntegerField(default = 0)
-    collectPst = models.ManyToManyField('Post')
+    collectPst = models.ManyToManyField('Post', null = True)
     def __str__(self):
         return self.user.username
     #def __init__(self, user):

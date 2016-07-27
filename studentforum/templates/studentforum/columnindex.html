@@ -1,5 +1,4 @@
 ﻿{% load staticfiles %}
-{% load static %}
 <!doctype html>
         <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7" lang="en-US"> <![endif]-->
         <!--[if IE 7]>    <html class="lt-ie9 lt-ie8" lang="en-US"> <![endif]-->
@@ -10,7 +9,7 @@
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-                <title>个人中心</title>
+                <title>全部分类</title>
 
                 <link rel="shortcut icon" href="images/favicon.png" />
 
@@ -101,53 +100,52 @@
                                 <div class="row">
 
                                         <!-- start of page content -->
-                                        <h3 class="title"><a href="{% url 'forchange' user.user.id %}">{{user.user}}的个人中心</a></h3>
                                         <div class="span8 page-content">
-                                                <!-- Basic Home Page Template -->                                               
+
+                                                <!-- Basic Home Page Template -->
                                                 <div class="row separator">
-                                                        <section class="widget">
-                                                        <h3 class="title">用户简介</h3>
-                                                        {% if user.user == request.user %}
-                                                        <img src="{% get_media_prefix %}{{ user.portrait }}" width ="100" height ="100">                                                       
-                                                        <div><a href="{% url 'forfanslist' user.user.id %}">粉丝：</a>{{user.fansNum}}&nbsp&nbsp&nbsp<a href="{% url 'forfollowlist' user.user.id %}">关注：</a>{{user.followNum}}</div>
-                                                        <div>{{ user.intro }}</div><br><br>
-                                                        <h3 class="title">信息修改</h3>
-                                                        <form enctype="multipart/form-data" method="POST" class="post-form">
-                                                        {% csrf_token %}
-                                                        <div class= "center">
-                                                        {{ form1.as_p }}
-                                                        {{ form.as_p }}
-                                                        <button type="submit" class="save btn btn-default">修改信息</button>
-                                                        <button type="button" onclick="location.href='{% url 'test' %}'" class="save btn btn-default">返回</button>
-                                                        </div>
-                                                        </form>
-                                                        {% else %}
-                                                        <img src="{% get_media_prefix %}{{ user.portrait }}" width ="100" height ="100">                                                       
-                                                        <div><a href="{% url 'forfanslist' user.user.id %}">粉丝：</a>{{user.fansNum}}&nbsp&nbsp&nbsp<a href="{% url 'forfollowlist' user.user.id %}">关注：</a>{{user.followNum}}</div>
-                                                        <div>{{ user.intro }}</div>
-                                                        {% if user in request.user.myuser.follow.all %}
-                                                        <div><a href="{% url 'forfollow' user.user.id %}">取消关注</a></div>
-                                                        {% else %}
-                                                        <div><a href="{% url 'forfollow' user.user.id %}">添加关注</a></div>
-                                                        {% endif %}
-                                                        {% endif %}                                                        
+                                                        <section class="widget"><h3 class="title">全部专栏</h3>
+                                                        <ul>
+                                                            {% for column in columns %}
+                                                            <li><a href="{% url 'forcolumn' column.id %}" title="Lorem ipsum dolor sit amet,">{{column.name}}</a> </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                </section>
                                                 </div>
                                         </div>
-                                        <aside class="span4 page-sidebar">
-                                            </section>
-                                                <section class="widget"><h3 class="title">用户活动</h3>
-                                                <ul>
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">发贴记录</a></li>
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">收藏条目</a></li>
-                                                {% if user.user != request.user %}
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">发送私信</a></li>
-                                                {% else %}
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">私信记录</a></li>
-                                                {% endif %}
-                                                </ul>
-                                            </section>
-                                        </aside>                                       
                                         <!-- end of page content -->
+
+
+                                        <!-- start of sidebar -->
+                                        <aside class="span4 page-sidebar">
+
+                                                <section class="widget">
+                                                        <div class="support-widget">
+                                                                <h3 class="title">Support</h3>
+                                                                <p class="intro">Need more support? If you did not found an answer, contact us for further help.</p>
+                                                        </div>
+                                                </section>
+
+                                                
+                                                <section class="widget">
+                                                        <h3 class="title">人气专栏</h3>
+                                                        <div class="tagcloud">
+                                                                <a href="{% url 'forcolumn' 1 %}" class="btn btn-mini">测试</a>
+                                                                <a href="{% url 'forcolumn' 2 %}" class="btn btn-mini">闲聊</a>
+                                                                <a href="{% url 'forcolumn' 3 %}" class="btn btn-mini">美食</a>
+                                                               
+                                                        </div>
+                                                        <h3 class="title">热点话题</h3>
+                                                        <div class="tagcloud">
+                                                                <a href="{% url 'forcolumn' 1 %}" class="btn btn-mini">#宋仲基#</a>
+                                                                <a href="{% url 'fortopic' 2 %}" class="btn btn-mini">#大作业#</a>
+                                                                <a href="{% url 'fortopic' 3 %}" class="btn btn-mini">#委屈#</a>
+                                                               
+                                                        </div>
+                                                </section>
+
+                                        </aside>
+                                        <!-- end of sidebar -->
                                 </div>
                         </div>
                 </div>
