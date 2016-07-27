@@ -1,4 +1,5 @@
 ﻿{% load staticfiles %}
+{% load static %}
 <!doctype html>
         <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7" lang="en-US"> <![endif]-->
         <!--[if IE 7]>    <html class="lt-ie9 lt-ie8" lang="en-US"> <![endif]-->
@@ -9,7 +10,7 @@
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-                <title>login</title>
+                <title>私信详情</title>
 
                 <link rel="shortcut icon" href="images/favicon.png" />
 
@@ -17,11 +18,12 @@
                 
 
                 <!-- Style Sheet-->
-                <link rel="stylesheet" href="style.css"/>
+                 <link rel="stylesheet" href="style.css"/>
                 <link rel='stylesheet' id='bootstrap-css-css'  href="{% static 'css/bootstrap5152.css' %}" type='text/css' media='all' />
                 <link rel='stylesheet' id='responsive-css-css'  href="{% static 'css/responsive5152.css' %}" type='text/css' media='all' />
                 <link rel='stylesheet' id='pretty-photo-css-css'  href="{% static 'js/prettyphoto/prettyPhotoaeb9.css' %}" type='text/css' media='all' />
                 <link rel='stylesheet' id='main-css-css'  href="{% static 'css/main5152.css' %}" type='text/css' media='all' />
+                <link rel='stylesheet' id='green-skin-css'  href="{% static 'css/green-skin5152.css' %}" type='text/css' media='all' />
                 <link rel='stylesheet' id='custom-css-css'  href="{% static 'css/custom5152.html' %}" type='text/css' media='all' />
 
 
@@ -43,24 +45,31 @@
                                         <div class="logo-container">
                                                 <!-- Website Logo -->
                                                 <a href="主页.html"  title="Knowledge Base Theme">
-                                                        demo
+                                                    demo
+                                                       <!-- <img src="images/logo.png" alt="Knowledge Base Theme">-->
                                                 </a>
-                                                <span class="tag-line">给你很多很好的评价</span>
+                                                <span class="tag-line">在线论坛</span>
                                         </div>
 
 
                                         <!-- Start of Main Navigation -->
-                                    <nav class="main-nav">
-                                        <div class="menu-top-menu-container">
-                                            <ul id="menu-top-menu" class="clearfix">
-                                                <li><a href="{% url 'fortopicindex' %}">所有话题</a></li>
-                                                <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
-                                                <li><a href="{% url 'forlogin' %}">登录</a></li>
-                                                <li><a href="{% url 'forregister' %}">注册</a></li>
-                                                <li><a href="{% url 'toHome' %}">返回主页</a></li>
-                                            </ul>
-                                        </div>
-                                    </nav>
+                                        <nav class="main-nav">
+                                                <div class="menu-top-menu-container">
+                                                        <ul id="menu-top-menu" class="clearfix">
+                                                                <li><a href="{% url 'fortopicindex' %}">所有话题</a></li>
+                                                                <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
+                                                                {% if request.user.is_authenticated %}
+                                                                <li><a href="{% url 'forlogout' %}">登出</a></li>
+                                                                <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
+                                                                <li><a href="{% url 'formodify' %}">修改密码</a></li>
+                                                                {% else %}
+                                                                <li><a href="{% url 'forlogin' %}">登录</a></li>
+                                                                <li><a href="{% url 'forregister' %}">注册</a></li>
+                                                                {% endif %}
+                                                                <li><a href="{% url 'toHome' %}">返回主页</a></li>
+                                                        </ul>
+                                                </div>
+                                        </nav>
                                         <!-- End of Main Navigation -->
 
                                 </div>
@@ -72,11 +81,6 @@
                 <div class="search-area-wrapper">
                         <div class="search-area container">
                                 <h3 class="search-header">给你很多很好的评价</h3>
-                                <form id="search-form" class="search-form clearfix" method="get" action="#" autocomplete="off">
-                                        <input class="search-term required" type="text" id="s" name="s" placeholder="Type your search terms here" title="* Please enter a search term!" />
-                                        <input class="search-btn" type="submit" value="Search" />
-                                        <div id="search-error-container"></div>
-                                </form>
                         </div>
                 </div>
                 <!-- End of Search Wrapper -->
@@ -87,40 +91,49 @@
                                 <div class="row">
 
                                         <!-- start of page content -->
+                                        <h3 class="title">和<a href="{% url 'forchange' user.user.id %}">{{user.user.username}}</a>的对话</h3>
                                         <div class="span8 page-content">
-
-                                                <article class="type-page hentry clearfix">
-                                                        <h1 class="post-title">
-                                                                <a href="#">登录</a>
-                                                        </h1>
+                                                <!-- Basic Home Page Template -->                                               
+                                                <div class="row separator">
+                                                        <section class="widget">
+                                                        <h3 class="title">私信详情</h3>
                                                         <hr>
-                                                </article>
-                                            <form method="POST" class="post-form" id="contact-form">
-												{% csrf_token %}
-												<div class= "center">
-												{{ form.as_p }} 
-												<button type="submit" class="save btn btn-default">登录</button>
-												</div>
-											</form>
-                                        </div>
-                                        <!-- end of page content -->
-
-
-                                        <!-- start of sidebar -->
-                                        <aside class="span4 page-sidebar">
-
-                                                <section class="widget">
-                                                        <div class="support-widget">
-                                                                <h3 class="title">Support</h3>
-                                                                <p class="intro">Need more support? If you did not found an answer, contact us for further help.</p>
+                                                        {% for letter in letters %}
+                                                        {% if letter.userFrom.user == request.user %}
+                                                        <div>
+                                                          <h4><span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>{{letter.content}}</h4>
+                                                          <p><span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><b><a href="{% url 'forchange' letter.userFrom.user.id %}">{{letter.userFrom}}</a>&nbsp&nbsp&nbsp</b>回复于{{letter.created_at}}</p>
                                                         </div>
-                                                </section>
-
-                                                
-
-
-                                        </aside>
-                                        <!-- end of sidebar -->
+                                                        {% else %}
+                                                        <div>
+                                                          <h4>{{letter.content}}</h4>
+                                                          <p><b><a href="{% url 'forchange' letter.userFrom.user.id %}">{{letter.userFrom}}</a>&nbsp&nbsp&nbsp</b>回复于{{letter.created_at}}</p>
+                                                        </div>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                        <hr>
+                                                        <form method="POST" class="post-form">
+                                                        {% csrf_token %}
+                                                        {{form.as_p}}
+                                                        <button type="submit" class="save btn btn-default">回复ta</button>
+                                                        </form>                                             
+                                                </div>
+                                        </div>
+                                        <aside class="span4 page-sidebar">
+                                            </section>
+                                                <section class="widget"><h3 class="title">用户活动</h3>
+                                                <ul>
+                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">发贴记录</a></li>
+                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">收藏条目</a></li>
+                                                {% if user.user != request.user %}
+                                                <li><a href="{% url 'forletter' user.user.id %}" title="Lorem ipsum dolor sit amet,">发送私信</a></li>
+                                                {% else %}
+                                                <li><a href="{% url 'forletterlist' %}" title="Lorem ipsum dolor sit amet,">私信记录</a></li>
+                                                {% endif %}
+                                                </ul>
+                                            </section>
+                                        </aside>                                       
+                                        <!-- end of page content -->
                                 </div>
                         </div>
                 </div>
@@ -135,7 +148,7 @@
                             <section class="widget">
                                 <h3 class="title">开发团队</h3>
                                 <div class="textwidget">
-                                    <p>神秘13号组织 </p>
+                                    <p>猜猜看，呵呵 </p>
                                 </div>
                             </section>
                         </div>
@@ -169,7 +182,7 @@
                         <div class="row">
                             <div class="span6">
                                 <p class="copyright">
-                                    Copyright &copy; 2014.Company name All rights reserved.
+                                    Copyright &copy; 2014.Company name All rights reserved.<a target="_blank" href="http://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
                                 </p>
                             </div>
                             <div class="span6">
@@ -210,4 +223,3 @@
         <div style="display:none"><script src='http://v7.cnzz.com/stat.php?id=155540&web_id=155540' language='JavaScript' charset='gb2312'></script></div>
 </body>
 </html>
-

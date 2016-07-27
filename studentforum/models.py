@@ -12,11 +12,11 @@ class MyUser(models.Model):
     score = models.IntegerField(default = 0)
     age = models.IntegerField(default = 0)
     followNum = models.IntegerField(default = 0)
-    follow = models.ManyToManyField('MyUser', symmetrical = False, null = True)
+    follow = models.ManyToManyField('MyUser', symmetrical = False)
     fansNum = models.IntegerField(default = 0)
     pstNum = models.IntegerField(default = 0)
     collectPstNum = models.IntegerField(default = 0)
-    collectPst = models.ManyToManyField('Post', null = True)
+    collectPst = models.ManyToManyField('Post')
     def __str__(self):
         return self.user.username
     #def __init__(self, user):
@@ -30,6 +30,7 @@ class Post(models.Model):
 	title = models.CharField(max_length = 100, verbose_name = " 标题")
 	content = models.TextField(verbose_name = " 内容（内容中插入#相关话题#可以将贴子与话题关联起来）", null = True)
 	created_at = models.DateTimeField(default = timezone.now)
+	latestupdate = models.DateTimeField(default = timezone.now)
 	ofColumn = models.ForeignKey('Column', null = True)
 	ofTopic = models.ForeignKey('Topic', null = True)
 	supportNum = models.IntegerField(default = 0)
@@ -67,8 +68,8 @@ class Topic(models.Model):
  
 class Letter(models.Model):
 	id = models.AutoField(primary_key = True, unique = True)
-	userFromID = models.IntegerField(default = 0)
-	userToID = models.IntegerField(default = 0)
-	content = models.TextField(max_length = 500)
+	userFrom = models.ForeignKey('MyUser', related_name = 'reverse_from', null = True)
+	userTo = models.ForeignKey('MyUser', related_name = 'reverse_to', null = True)
+	content = models.TextField(max_length = 500, verbose_name = "内容")
 	created_at = models.DateTimeField(default = timezone.now)
 # Create your models here.

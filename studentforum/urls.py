@@ -33,4 +33,6 @@ urlpatterns = [
     url(r'^topicindex/', views.showTopicIndex, name='fortopicindex'),
     url(r'^$', views.directToHome, name='toHome'),
     url(r'^search/', views.search,name='result'),
+    url(r'^letter/([0-9]+)$', views.showLetter, name='forletter'),
+    url(r'^letterList/', views.showLetterList, name='forletterlist'),
 ]

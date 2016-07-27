@@ -1,15 +1,17 @@
 from django.shortcuts import render
-from .forms import LoginForm, RegisterForm, changeForm, userForm, PasswordForm, PostForm, ReplyForm
+from .forms import LoginForm, RegisterForm, changeForm, userForm, PasswordForm, PostForm, ReplyForm, LetterForm
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
-from .models import MyUser, Post, Reply, Column, Topic
+from .models import MyUser, Post, Reply, Column, Topic, Letter
 from django.core.urlresolvers import reverse
 from itertools import chain
 # Create your views here.
 def test(request):
     posts = Post.objects.all()
     form = PostForm()
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     if request.user.is_authenticated():
         if request.method == 'POST':
             params = request.POST
@@ -20,11 +22,11 @@ def test(request):
                 post.save()
                 form = PostForm()
             posts = Post.objects.all()
-            return render(request,'studentforum/afterLogHome.html', {'posts': posts,'form':form})
+            return render(request,'studentforum/afterLogHome.html', {'posts': posts,'form':form, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
         else:
-            return render(request,'studentforum/afterLogHome.html', {'posts': posts,'form':form})
+            return render(request,'studentforum/afterLogHome.html', {'posts': posts,'form':form, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
     else:
-        return render(request,'studentforum/home.html', {'posts': posts,'form':form})
+        return render(request,'studentforum/home.html', {'posts': posts,'form':form, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
 	
 	
 #def login(request): 
@@ -129,6 +131,8 @@ def changeInfo(request, infoIDstr):
 		
 def showDetail(request, postIDstr):
     postID = int(postIDstr)
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     rarams = request.POST if request.method == 'POST' else None
     form = ReplyForm(rarams)
     post = Post.objects.get(id = postID)
@@ -139,7 +143,31 @@ def showDetail(request, postIDstr):
         reply.save()
         form = ReplyForm()
     replies = Reply.objects.filter(PID = post)
-    return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form})
+    return render(request, 'studentForum/postDetail.html', {'replies': replies, 'post': post, 'form': form, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
+
+def showLetter(request, toIDstr):
+    toID = int(toIDstr)
+    toUser = User.objects.get(id = toID).myuser
+    larams = request.POST if request.method == 'POST' else None
+    form = LetterForm(larams)
+    if form.is_valid() and request.user.is_authenticated():
+        letter = form.save(commit = False)
+        letter.userFrom = request.user.myuser
+        letter.userTo = toUser
+        letter.save()
+        form = LetterForm()
+    letters1 = Letter.objects.filter(userFrom = request.user.myuser).filter(userTo = toUser)
+    letters2 = Letter.objects.filter(userFrom = toUser).filter(userTo = request.user.myuser)
+    letters = letters1 | letters2
+    return render(request, 'studentForum/letter.html', {'letters': letters, 'form': form, 'user': toUser})
+
+def showLetterList(request):
+    userSet = set()
+    for letter in request.user.myuser.reverse_from.all():
+        userSet.add(letter.userTo)
+    for letter in request.user.myuser.reverse_to.all():
+        userSet.add(letter.userFrom)
+    return render(request, 'studentForum/letterlist.html', {'users': userSet})
 
 def seekTopic(post):
     contentStr = post.content
@@ -168,6 +196,8 @@ def seekTopic(post):
 def showColumn(request, columnIDstr):
     columnID = int(columnIDstr)
     posts = Post.objects.filter(ofColumn = Column.objects.get(id = columnID))
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     temp = Column.objects.get(id = columnID)
     temp.pstNum = posts.count()
     temp.save()
@@ -194,9 +224,9 @@ def showColumn(request, columnIDstr):
                     post.ofTopic = tempTopic
             post.save()
             form = PostForm()
-        return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp})
+        return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
     else:
-        return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp})
+        return render(request, 'studentForum/column.html', {'posts': posts, 'form': form, 'column': temp, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
 
 def follow(request, followIDstr):
     followID = int(followIDstr)
@@ -229,25 +259,33 @@ def showFans(request, userIDstr):
     return render(request, 'studentForum/fanslist.html', {'fans': fans, 'user': tempUser.myuser})
 
 def showColumnIndex(request):
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     columns = Column.objects.all()
-    return render(request, 'studentForum/columnindex.html', {'columns': columns})
+    return render(request, 'studentForum/columnindex.html', {'columns': columns, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
 
 def showTopic(request, topicIDstr):
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     topicID = int(topicIDstr)
     topic = Topic.objects.get(id = topicID)
     posts = Post.objects.filter(ofTopic = topic)
-    return render(request, 'studentForum/topic.html', {'posts': posts, 'topic': topic})
+    return render(request, 'studentForum/topic.html', {'posts': posts, 'topic': topic, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
 
 def showTopicIndex(request):
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     topics = Topic.objects.all()
-    return render(request, 'studentForum/topicindex.html', {'topics': topics})
+    return render(request, 'studentForum/topicindex.html', {'topics': topics, 'hotColumns': hotColumns, 'hotTopics': hotTopics})
 
 def directToHome(request):
 	return HttpResponseRedirect("/home")
 
 def search(request):
+    hotColumns = Column.objects.order_by("-pstNum")
+    hotTopics = Topic.objects.order_by("-pstNum")
     key = request.GET['q']
     posts1 = Post.objects.filter(title__icontains=key)
     posts2 = Post.objects.filter(content__icontains=key)
     posts = posts1 | posts2
-    return render(request,'studentForum/result.html',{'posts':posts})
+    return render(request,'studentForum/result.html',{'posts':posts, 'hotColumns': hotColumns, 'hotTopics': hotTopics})

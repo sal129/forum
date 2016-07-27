@@ -59,7 +59,7 @@
                                                                 <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
                                                                 {% if request.user.is_authenticated %}
                                                                 <li><a href="{% url 'forlogout' %}">登出</a></li>
-                                                                <li><a href="{% url 'forchange' request.user.id %}">个人中心</a></li>
+                                                                <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
                                                                 <li><a href="{% url 'formodify' %}">修改密码</a></li>
                                                                 {% else %}
                                                                 <li><a href="{% url 'forlogin' %}">登录</a></li>
@@ -105,7 +105,7 @@
                                                 <!-- Basic Home Page Template -->
                                                 <div class="row separator">
                                                         <section class="span4 articles-list">
-                                                                <h3>新鲜主题（进入分类后方能发贴）</h3>
+                                                                <h3>新鲜主题（进入专栏后方能发贴）</h3>
                                                                 <ul class="articles">
                                                                         {% for post in posts %}
                                                                         <!-- <div>
@@ -114,6 +114,7 @@
                                                                         </div> -->
                                                                         <li class="article-entry standard">
                                                                           <h4><a href="{% url 'forpostdetail' post.id %}">{{post.title}}</a></h4>
+                                                                          <span><h6>{{post.content}}</h6></span>
                                                                           <span class="article-meta">{{post.created_at}}<a href="{% url 'forchange' post.author.user.id %}" title="View all posts in Server &amp; Database">&nbsp&nbsp&nbsp{{post.author}}</a><a href="{% url 'forcolumn' post.ofColumn.id %}">&nbsp&nbsp&nbsp{{post.ofColumn}}</a></span>
                                                                           <span class="like-count">66</span>
                                                                         </li>
@@ -139,17 +140,19 @@
                                                 <section class="widget">
                                                         <h3 class="title">人气专栏</h3>
                                                         <div class="tagcloud">
-                                                                <a href="{% url 'forcolumn' 1 %}" class="btn btn-mini">测试</a>
-                                                                <a href="{% url 'forcolumn' 2 %}" class="btn btn-mini">闲聊</a>
-                                                                <a href="{% url 'forcolumn' 3 %}" class="btn btn-mini">美食</a>
-                                                               
+                                                                {% for hotColumn in hotColumns %}
+                                                                {% if forloop.counter0 < 3 %}
+                                                                <a href="{% url 'forcolumn' hotColumn.id %}" class="btn btn-mini">{{hotColumn.name}}</a>
+                                                                {% endif %}
+                                                                {% endfor %}
                                                         </div>
                                                         <h3 class="title">热点话题</h3>
                                                         <div class="tagcloud">
-                                                                <a href="{% url 'fortopic' 1 %}" class="btn btn-mini">#宋仲基#</a>
-                                                                <a href="{% url 'fortopic' 2 %}" class="btn btn-mini">#大作业#</a>
-                                                                <a href="{% url 'fortopic' 3 %}" class="btn btn-mini">#委屈#</a>
-                                                               
+                                                                {% for hotTopic in hotTopics %}
+                                                                {% if forloop.counter0 < 3 %}
+                                                                <a href="{% url 'fortopic' hotTopic.id %}" class="btn btn-mini">#{{hotTopic.title}}#</a>
+                                                                {% endif %}
+                                                                {% endfor %}
                                                         </div>
                                                 </section>
 

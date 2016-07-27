@@ -78,6 +78,8 @@ span.tag-line {
   color: #eaeaea;
 }
 
+
+
 .main-nav {
   position: absolute;
   top: 5px;
@@ -482,6 +484,7 @@ li.comment > article .avatar {
   margin-bottom: 10px;
 }
 
+
 .home-listing-area h2 {
   font-weight: 600;
   font-size: 22px;
@@ -595,6 +598,11 @@ ul.articles li.article-entry:last-child {
 }
 .main-listing article.hentry {
   margin-bottom: 0;
+}
+
+span h6{
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .hentry .post-meta {

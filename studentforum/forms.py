@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Post, Reply, MyUser
+from .models import Post, Reply, MyUser, Letter
 from django.utils.translation import ugettext_lazy as _
 from django.forms import Widget
 
@@ -63,6 +63,11 @@ class ReplyForm(forms.ModelForm):
 	class Meta:
 		model = Reply
 		fields = ('content',)
+
+class LetterForm(forms.ModelForm):
+    class Meta:
+        model = Letter
+        fields = ('content',)
 
 class PasswordForm(forms.Form):
     password = forms.CharField(

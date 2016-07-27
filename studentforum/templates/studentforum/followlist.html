@@ -60,7 +60,7 @@
                                                                 <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
                                                                 {% if request.user.is_authenticated %}
                                                                 <li><a href="{% url 'forlogout' %}">登出</a></li>
-                                                                <li><a href="{% url 'forchange' request.user.id %}">个人中心</a></li>
+                                                                <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
                                                                 <li><a href="{% url 'formodify' %}">修改密码</a></li>
                                                                 {% else %}
                                                                 <li><a href="{% url 'forlogin' %}">登录</a></li>
@@ -107,10 +107,11 @@
                                                 <div class="row separator">
                                                         <section class="widget">
                                                         <h3 class="title">关注列表</h3>
+                                                        <ul>
                                                         {% for sfollow in follow %}
                                                         <li><a href="{% url 'forchange' sfollow.user.id %}" title="Lorem ipsum dolor sit amet,">{{sfollow.user.username}}</a></li>
                                                         {% endfor %}
-                                                                                                          
+                                                        </ul>                                                
                                                 </div>
                                         </div>
                                         <aside class="span4 page-sidebar">
@@ -120,9 +121,9 @@
                                                 <li><a href="#" title="Lorem ipsum dolor sit amet,">发贴记录</a></li>
                                                 <li><a href="#" title="Lorem ipsum dolor sit amet,">收藏条目</a></li>
                                                 {% if user.user != request.user %}
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">发送私信</a></li>
+                                                <li><a href="{% url 'forletter' user.user.id %}" title="Lorem ipsum dolor sit amet,">发送私信</a></li>
                                                 {% else %}
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">私信记录</a></li>
+                                                <li><a href="{% url 'forletterlist' %}" title="Lorem ipsum dolor sit amet,">私信记录</a></li>
                                                 {% endif %}
                                                 </ul>
                                             </section>
