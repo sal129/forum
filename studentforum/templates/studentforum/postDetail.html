@@ -1,47 +1,78 @@
 {% load staticfiles %}
-
+{% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'studentforum/postDetail.css' %}" />
 <html>
 <head>
    <meta charset = "utf-8"/>
    <title> 贴子详情 </title>
+    <script>
+    window.onload=function()
+    {
+        document.getElementById("postgood").textContent={{post.supportNum}};
+        {%for reply in replies%}
+        var rep=document.getElementById("countgood_"+{{reply.id}});
+        rep.textContent={{reply.supportNum}};
+        {%endfor%}
+    };  
+    </script>
 </head>
-<body>
-  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<body id = "body">
+   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <div id="topForBack"><a href="{% url 'test' %}">返回首页</a></div>
-    
+  <input type="submit" onclick="changeReplies()" value="只看楼主"></input>
+  <img src="{% get_media_prefix %}{{ post.author.portrait }}" width ="100" height ="100">
+  <p><b>发帖人：{{post.author}}</b>
   <h1> {{post.title}} </h1>
   <p>{{post.content}}</p>
-    <p><b>{{post.author}}</b>发帖于{{post.created_at}}</p>
+  {% if post.photo %}
+  <img src="{% get_media_prefix %}{{ post.photo }}" width ="100" height ="100">
+  {% endif %}
+  {% if post.attachment %}
+  <p><span>附件</span><span onclick = "download(this)">{{postfilename}}</span></p>
+  {% endif %}
+  回复时间{{post.created_at}}<span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span><span id="postgood"></span></p><span onclick='reportPost({{post.id}})'>&nbsp;举报</span></p>
   <hr>
-  {% for reply in replies %}
- <div>
-    <h4>{{reply.content}}</h4>
-    <p><b>{{reply.author}}</b>回复于{{reply.created_at}}&nbsp;&nbsp;<span title="reply_{{reply.id}}" onclick = "changeShowAndDisplay(this)">收起回复</span><a href="{%url 'reptorep' reply.id post.id%}">&nbsp;显示楼中楼</a></p>
-	<div id = "reply_{{reply.id}}" style = "display:block;">
-	<div id = "replyinside_{{reply.id}}">
-     {%for rr in reply.replytoreply_set.all%}
+  {% for reply in replylist %}
+  {%if reply.belongToAuthor == "True"%}
+  <div class="reply author">
+  {% else %}
+  <div class="reply nauthor">
+  {% endif %}
+    <img src="{% get_media_prefix %}{{ reply.reply1.author.portrait }}" width ="100" height ="100">
+    <p><b>回帖人：{{reply.reply1.author}}</b>
+	<p>{{reply.reply1.content}}</p>
+	{% if reply.reply1.photo %}
+    <img src="{% get_media_prefix %}{{ reply.reply1.photo }}" width ="100" height ="100">
+    {% endif %}
+    {% if reply.reply1.attachment %}
+     <p><span>附件</span><span onclick = "downloadReply(this,{{reply.reply1.id}})">{{reply.replyfilename}}</span></p>
+    {% endif %}
+    回复时间{{reply.reply1.created_at}}&nbsp;&nbsp;<span title="reply_{{reply.reply1.id}}" onclick = "changeShowAndDisplay(this)">收起回复</span>&nbsp;<span id='good' onclick='clicker({{reply.reply1.id}})'>赞</span><span id='countgood_{{reply.reply1.id}}'></span> <span onclick='reportReply({{reply.reply1.id}})'>&nbsp;举报</span></p>
+	<div id = "reply_{{reply.reply1.id}}" style = "display:block;">
+        
+	<div id = "replyinside_{{reply.reply1.id}}">
+     {%for rr in reply.reply1.replytoreply_set.all%}
      <p>{{rr.content}}</p>   	 
      {%endfor%}
 	  </div>
-	 <span id = "showreptorep_{{reply.id}}" onclick = "showreptorep(this)" style = "display:block;">我也说一句</span>
-	 <div id = "reptorepdiv_{{reply.id}}" style = "display:none;">
-	 <textarea id="reptorep_{{reply.id}}" rows="10" cols="40"></textarea>
+	 <span id = "showreptorep_{{reply.reply1.id}}" onclick = "showreptorep(this)" style = "display:block;">我也说一句</span>
+	 <div id = "reptorepdiv_{{reply.reply1.id}}" style = "display:none;">
+	 <textarea id="reptorep_{{reply.reply1.id}}" rows="10" cols="40"></textarea>
 	 <input type="button" value="回复" onclick = "updateReply(this)")></input>
 	 </div>
-   </div>   
-     
-    <hr>
+  </div>
+   <hr>
   </div>
   {% endfor %}
   <hr>
-  <form method="POST" class="post-form">
+  <form enctype="multipart/form-data" method="POST" class="post-form">
     {% csrf_token %}
 	{{form.as_p}}
   <button type="submit" class="save btn btn-default">发表回复</button>
   </form>
-  <script>
-  function getCookie(name) {
+  
+<script>
+         function getCookie(name) {
          var cookieValue = null;
          if (document.cookie && document.cookie !== '') {
            var cookies = document.cookie.split(';');
@@ -69,10 +100,6 @@ $.ajaxSetup({
         }
     }
 });
-  
-  
-  
-  
   function changeShowAndDisplay(r)
   {
    if(document.getElementById(r.title).style.display == "block")
@@ -112,12 +139,56 @@ $.ajaxSetup({
                 para.appendChild(node);
                 var element=document.getElementById("replyinside_"+replyid);
                 element.appendChild(para);				
-                 }
+            }
            }
  
          );
   }
-  
+      
+  function clicker(rid)
+    {
+        //var countgood=document.getElementById('countgood_'+rid).textContent;
+        //countgood++;
+        //document.getElementById('countgood_'+rid).textContent=countgood;
+       
+        var d={'replyid':rid,'whatever':'whatever'};
+         //alert(d["replyid"])
+        $.ajax({
+            url:"{% url 'countgood' %}",
+            type:'POST',
+            tradition:true,
+            data:{data:JSON.stringify(d)},
+            success:function(ret)
+            {
+                
+                ret=JSON.parse(ret);
+                
+                document.getElementById("countgood_"+rid).textContent=ret['num'];
+            }
+        });
+        
+        //alert('wtf')
+        
+    }
+ function postgoodclick(pid)
+ {
+     var d={'postid':pid,"whatever":"whatever"};
+     
+     $.ajax({
+        url:"{% url 'postcountgood' post.id post.id post.id %}" ,
+        type:'POST',
+        tradition:true,
+        data:{data:JSON.stringify(d)},
+        success:function(ret)
+        {
+            ret=JSON.parse(ret);
+           
+            document.getElementById("postgood").textContent=ret["num"];
+        }
+     });
+     
+ }
+      
   function showreptorep(r)
   {
     var replyid = r.parentNode.id;
@@ -125,7 +196,104 @@ $.ajaxSetup({
 	r.style.display = "none";
 	document.getElementById("reptorepdiv_"+replyid).style.display = "block"; 
   }
-  
-  </script>
-</body>
+	 
+         function download(r){
+	 if(document.getElementById("temptDownload"))
+	 {
+	 document.getElementById("body").removeChild(document.getElementById("temptDownload"));
+	 }
+     var elemIF = document.createElement("iframe");  
+     elemIF.src = "{% url 'downloadpost' post.id%}";  
+     elemIF.style.display = "none";
+	 elemIF.id = "temptDownload"
+     document.body.appendChild(elemIF); 
+      }
+	  
+	  function downloadReply(r,replyid){
+	 if(document.getElementById("temptDownload"))
+	 {
+	 document.getElementById("body").removeChild(document.getElementById("temptDownload"));
+	 }
+     var elemIF = document.createElement("iframe");	 
+     elemIF.src = "/download/replyattachment/" + replyid;  
+     elemIF.style.display = "none";
+	 elemIF.id = "temptDownload"
+     document.body.appendChild(elemIF); 
+      }
+	  var authorOnly = false;
+	  function changeReplies()
+	  {
+	    var nauthorreplies = document.getElementsByClassName("nauthor");
+	    if(authorOnly == false)
+		{
+		 for(var i = 0; i < nauthorreplies.length; i++)
+		 {
+		 nauthorreplies[i].style.display = "none";
+		 }
+		 authorOnly = true
+		}
+		else
+		{
+		 for(var i = 0; i < nauthorreplies.length; i++)
+		 {
+		 nauthorreplies[i].style.display = "block";
+		 }
+		  authorOnly = false;
+		 }
+		 console.log(authorOnly);
+	  }
+     
+	 function reportPost(postid)
+	 {
+       var datas = {'type':'reportpost','postid':postid};
+	   		     alert("start");
+         $.ajax({
+             url:"{% url 'forpostdetail' post.id%}",
+             type:'POST',
+             tradition:true,   //原生模式
+             data:{data:JSON.stringify(datas)},
+             success: function(data1){ 
+			    alert("success");
+				/*data1 = JSON.parse(data1);
+				console.log(data1["content"]);
+                //$("#test").text(data1["content"]);
+			    var para=document.createElement("p");
+                var node=document.createTextNode(data1["content"]);
+                para.appendChild(node);
+                var element=document.getElementById("replyinside_"+replyid);
+                element.appendChild(para);*/			
+            }
+           }
+ 
+         );
+	 }
+	 
+	 function reportReply(replyid)
+	 {
+	 var replyid = r.parentNode.id;
+       replyid = replyid.slice(replyid.indexOf("_")+1);
+	   content = document.getElementById("reptorep_"+replyid).value;
+       var datas = {'type':'reply','replyid':replyid, 'content':content};
+         $.ajax({
+             url:"{% url 'forpostdetail' post.id%}",
+             type:'POST',
+             tradition:true,   //原生模式
+             data:{data:JSON.stringify(datas)},
+             success: function(data1){ 
+			    //alert("success");
+				data1 = JSON.parse(data1);
+				console.log(data1["content"]);
+                //$("#test").text(data1["content"]);
+			    var para=document.createElement("p");
+                var node=document.createTextNode(data1["content"]);
+                para.appendChild(node);
+                var element=document.getElementById("replyinside_"+replyid);
+                element.appendChild(para);				
+            }
+           }
+ 
+         );
+	 }
+ </script>
+ </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <title></title>
+ </head>
+ <body>
+ <p id="test"></p>
+ <input type="button" onclick="AjaxSubmit_set()" value="提交集合">
+ <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+ <script>
+         function getCookie(name) {
+         var cookieValue = null;
+         if (document.cookie && document.cookie !== '') {
+           var cookies = document.cookie.split(';');
+           for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+           }
+         }
+         return cookieValue;
+      }
+var csrftoken = getCookie('csrftoken');
+ 
+ function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+         function AjaxSubmit_set(){
+         var data_list = [
+             {'name':'chenchao','age':18},
+             {'name':'lisi','age':19},
+             {'name':'wangwu','age':13}
+ 
+         ];
+ 
+         $.ajax({
+             url:"/testajax2/",
+             type:'POST',
+             tradition:true,   //原生模式
+             data:{data:JSON.stringify(data_list)},
+             success: function(data1){ 
+			    data1 = JSON.parse(data1);
+                console.log(String(data1));
+				console.log(data1["content"]);
+                $("#test").text(data1["content"]);                
+                 }
+           }
+ 
+         );
+     }
+ 
+ </script>
+ 
+ </body>
+ </html>

@@ -23,11 +23,18 @@ urlpatterns = [
 	url(r'^register/', views.register, name='forregister'),
 	url(r'^modify/', views.modifyPassword, name='formodify'),
 	url(r'^infoChange/', views.changeInfo, name='forchange'),
-    url(r'^postDetail/([0-9]+)/$', views.showDetail, name='forpostdetail'),
-    url(r'^postDetail/([0-9]+)/([0-9]+)/$',views.reptorep,name='reptorep'),
+    url(r'^postDetail/([0-9]+)$', views.showDetail, name='forpostdetail'),
     url(r'^$', views.directToHome, name='toHome'),
-
+    url(r'^testfile$', views.testfile,name='test1'),
+    url(r'^showphoto$', views.showphoto,name='test2'),
+    url(r'^showfile$', views.showfile,name='test6'),
+    url(r'^testWidget$', views.showWidget,name='test3'),
     url(r'^search/', views.search,name='result'),
-    url(r'^replyDetails/([0-9]+)/([0-9]+)/$',views.replytoreply,name='replytoreply'),
-   
+    url(r'^testajax/', views.testajax,name='test4'),
+    url(r'^testajax2/',views.testajax2,name="test5"),
+    url(r'^download/postattachment/([0-9]+)$',views.downloadpost,name="downloadpost"),
+    url(r'^download/replyattachment/([0-9]+)$',views.downloadreply,name="downloadreply"),
+    url(r'^postDetail/$',views.countgood,name="countgood"),
+    url(r'^postDetail/([0-9]+)/([0-9]+)/([0-9]+)/$',views.postcountgood,name="postcountgood"),
+    #url(r'^download/replyattachment/([0-9]+)$',views.testdownload,name="downloadtest")
 ]
