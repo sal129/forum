@@ -1,0 +1,13 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'studentforum/login.css' %}" />
+<html>
+<body>
+<form method="POST" class="post-form">
+{% csrf_token %}
+<div class= "center">
+{{ form.as_p }} 
+<button type="submit" class="save btn btn-default">登录</button>
+</div>
+</form>
+</body>
+</html>

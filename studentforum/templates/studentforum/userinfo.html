@@ -1,52 +1,66 @@
 
-{% load staticfiles %}
+
 <html>
 <head>
+   <style>
     
+    
+    
+    
+    
+    </style> 
+<script>
+    
+</script>
     
     
 </head>
 
 <body>
+    
 <!--<a href=" {%url 'delete_account'%}">显示用户列表</a>  /*onclick="del({{user.user_id}})"*/-->
+    <h1 style="color:green;">用户管理模块</h1>
     {%for user in usergroup%}
     {%if not user.isdeleted%}
+    <hr>
     <div id="user_{{user.user_id}}">
         
-        <p>user_id:{{user.user_id}}<span ><a href="{%url 'deluser' user.user_id%}"> 删除</a></span></p>
-    <p>{{user.isdeleted}}</p>
+        <p >user_id:{{user.user_id}}<span > <a href="{%url 'deluser' user.user_id%}">删除</a> <a href="{%url 'forbiduser' user.user_id user.user_id user.user_id user.user_id user.user_id%}"> 禁言</a><a id="adminflag_{{user.user_id}}" href="{%url 'tocolumnadmin' user.user_id  user.user_id%}">{%if not user.manageType%}  升级为column管理员{%else%} 降级为普通用户{%endif%}</a></span></p>
+        <div id="updateadmin_{{user.user_id}}">
+    {%if user.manageType%}
+        {%for col in columngroup%}
+        
+        <p><a href="{%url 'setcoladmin' user.user_id col.id col.id%}">设置为栏目：{{col.name}} 的管理员</a></p>
+        <p><a href="{%url 'unsetcoladmin' user.user_id col.id col.id col.id%}">取消设置为栏目：{{col.name}} 的管理员</a></p>
+        
+        {%endfor%}
+    {%endif%}
+        </div>
+    <p>user类型：{%if not user.manageType%}
+    普通用户
+    {%else%}
+    column管理员
+    {%endif%}
+        </p>
     <p>username:{{user.user.username}}</p>
-    <p>userpassword:{{user.user.password}}</p>
+    
     </div>
     {%endif%}
     {%endfor%}
     
+   
+    
     
 <script>
-    function del(uid)
-    {
-        var d={'userid':uid,'whatever':'whatever'};
-         //alert(d['userid']);
-        
-        $.ajax({
-           url:"{% url 'deluser' 2 %}" ,
-           type:'POST',
-           tradition:true,
-            data:{data:JSON.stringify(d)},
-            success:function(ret)
-            {
-                ret=JSON.parse(ret);
-                alert('alert');
-                document.getElementById('user_'+uid).innerHTML="";
-            }
-        });
-    }
-    
-    
-    
+   
+   
     
 </script>
 </body>
 
-
+<footer>
+    <hr>
+    <hr>
+<a href="{% url 'test' %}">返回主页</a>    
+</footer>
 </html>
