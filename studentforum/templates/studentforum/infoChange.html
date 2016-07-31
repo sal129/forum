@@ -18,7 +18,6 @@
                 
 
                 <!-- Style Sheet-->
-                 <link rel="stylesheet" href="style.css"/>
                 <link rel='stylesheet' id='bootstrap-css-css'  href="{% static 'css/bootstrap5152.css' %}" type='text/css' media='all' />
                 <link rel='stylesheet' id='responsive-css-css'  href="{% static 'css/responsive5152.css' %}" type='text/css' media='all' />
                 <link rel='stylesheet' id='pretty-photo-css-css'  href="{% static 'js/prettyphoto/prettyPhotoaeb9.css' %}" type='text/css' media='all' />
@@ -44,10 +43,6 @@
 
                                         <div class="logo-container">
                                                 <!-- Website Logo -->
-                                                <a href="主页.html"  title="Knowledge Base Theme">
-                                                    demo
-                                                       <!-- <img src="images/logo.png" alt="Knowledge Base Theme">-->
-                                                </a>
                                                 <span class="tag-line">在线论坛</span>
                                         </div>
 
@@ -62,6 +57,9 @@
                                                                 <li><a href="{% url 'forlogout' %}">登出</a></li>
                                                                 <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
                                                                 <li><a href="{% url 'formodify' %}">修改密码</a></li>
+                                                                {% if request.user.myuser.manageType == 2 %}
+                                                                <li><a href="{% url 'forcenter' %}">管理中心</a></li>
+                                                                {% endif %}
                                                                 {% else %}
                                                                 <li><a href="{% url 'forlogin' %}">登录</a></li>
                                                                 <li><a href="{% url 'forregister' %}">注册</a></li>
@@ -137,8 +135,8 @@
                                             </section>
                                                 <section class="widget"><h3 class="title">用户活动</h3>
                                                 <ul>
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">发贴记录</a></li>
-                                                <li><a href="#" title="Lorem ipsum dolor sit amet,">收藏条目</a></li>
+                                                <li><a href="{% url 'foractions' user.user.id %}" title="Lorem ipsum dolor sit amet,">发贴记录</a></li>
+                                                <li><a href="{% url 'forcollects' user.user.id %}" title="Lorem ipsum dolor sit amet,">收藏条目</a></li>
                                                 {% if user.user != request.user %}
                                                 <li><a href="{% url 'forletter' user.user.id %}" title="Lorem ipsum dolor sit amet,">发送私信</a></li>
                                                 {% else %}

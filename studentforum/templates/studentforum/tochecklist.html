@@ -1,0 +1,62 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'studentforum/home.css' %}" />
+<html>
+<head>
+<meta charset="utf-8"/>
+</head>
+<body>
+<h1> 审核帖子列表 </h1>
+  <h2><span>&nbsp&nbsp帖子描述</span><span>&nbsp&nbsp帖子类型</span><span>&nbsp&nbsp作者</span><span>&nbsp&nbsp发帖时间</span></h2>
+  {% for post in posts %}
+  <div>
+    {% if post.type1 == 0 %}
+    <h2><a href = "{% url 'forpostdetail' post.forpost.id %}">{{post.forpost.title}}</a><span>&nbsp&nbsp帖子</span><span>&nbsp&nbsp{{post.forpost.author}}</span><span>&nbsp&nbsp{{post.forpost.created_at}}</span></h2>
+	<form method="POST" class="post-form">
+	{% csrf_token %}
+	<input type="text" name="id" value= "{{post.forpost.id}}" style="display:none;"></input>
+	<input type="text" name="post" value= "post" style="display:none;"></input>
+	<input type="submit" value="删除"></input>
+	</form>
+	<form method="POST" class="post-form">
+	{% csrf_token %}
+	<input type="text" name="id" value= "{{post.forpost.id}}" style="display:none;"></input>
+	<input type="text" name="type" value= "post" style="display:none;"></input>
+	<input type="text" name="passcheck" value= "" style="display:none;"></input>
+	<input type="submit" value="审核通过"></input>
+	</form>
+	{%elif post.type1 == 1%}
+	<h2>帖子{{post.forreply.PID.title}}中回帖<span>&nbsp&nbsp回复</span><span>&nbsp&nbsp{{post.forreply.author}}</span><span>&nbsp&nbsp{{post.forreply.created_at}}</span></h2>
+	<form method="POST" class="post-form">
+	{% csrf_token %}
+	<input type="text" name="id" value= "{{post.forreply.id}}" style="display:none;"></input>
+	<input type="text" name="reply" value= "reply" style="display:none;"></input>
+	<input type="submit" value="删除"></input>
+	</form>
+	 <form method="POST" class="post-form">
+	{% csrf_token %}
+	<input type="text" name="id" value= "{{post.forreply.id}}" style="display:none;"></input>
+	<input type="text" name="type" value= "reply" style="display:none;"></input>
+	<input type="text" name="passcheck" value= "" style="display:none;"></input>
+	<input type="submit" value="审核通过"></input>
+	</form>
+	{%elif post.type1 == 2%}
+	<h2>帖子{{post.forreplytoreply.PID.PID.title}}中楼中楼<span>&nbsp&nbsp楼中楼</span><span>&nbsp&nbsp{{post.forreplytoreply.author}}</span><span>&nbsp&nbsp{{post.forreplytoreply.created_at}}</span></h2>
+	<form method="POST" class="post-form">
+	{% csrf_token %}
+	<input type="text" name="id" value= "{{post.forreplytoreply.id}}" style="display:none;"></input>
+	<input type="text" name="replytoreply" value= "replytoreply" style="display:none;"></input>
+	<input type="submit" value="删除"></input>
+	</form>
+    <form method="POST" class="post-form">
+	{% csrf_token %}
+	<input type="text" name="id" value= "{{post.forreplytoreply.id}}" style="display:none;"></input>
+	<input type="text" name="type" value= "replytoreply" style="display:none;"></input>
+	<input type="text" name="passcheck" value= "" style="display:none;"></input>
+	<input type="submit" value="审核通过"></input>
+	</form>
+	{% endif %}
+    <!--<p><b>{{post.forpost.author}}</b>发帖于{{post.forpost.created_at}}</p>-->
+  </div>
+  {% endfor %}
+</body>
+</html>

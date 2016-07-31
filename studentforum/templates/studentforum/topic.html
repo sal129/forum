@@ -42,11 +42,6 @@
 
 
                                         <div class="logo-container">
-                                                <!-- Website Logo -->
-                                                <a href="主页.html"  title="Knowledge Base Theme">
-                                                    demo
-                                                       <!-- <img src="images/logo.png" alt="Knowledge Base Theme">-->
-                                                </a>
                                                 <span class="tag-line">在线论坛</span>
                                         </div>
 
@@ -61,6 +56,9 @@
                                                                 <li><a href="{% url 'forlogout' %}">登出</a></li>
                                                                 <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
                                                                 <li><a href="{% url 'formodify' %}">修改密码</a></li>
+                                                                {% if request.user.myuser.manageType == 2 %}
+                                                                <li><a href="{% url 'forcenter' %}">管理中心</a></li>
+                                                                {% endif %}
                                                                 {% else %}
                                                                 <li><a href="{% url 'forlogin' %}">登录</a></li>
                                                                 <li><a href="{% url 'forregister' %}">注册</a></li>
@@ -116,7 +114,7 @@
                                                                           <h4><a href="{% url 'forpostdetail' post.id %}">{{post.title}}</a></h4>
                                                                           <span><h6>{{post.content}}</h6></span>
                                                                           <span class="article-meta">{{post.created_at}}<a href="{% url 'forchange' post.author.user.id %}" title="View all posts in Server &amp; Database">&nbsp&nbsp&nbsp{{post.author}}</a><a href="{% url 'forcolumn' post.ofColumn.id %}">&nbsp&nbsp&nbsp{{post.ofColumn}}</a></span>
-                                                                          <span class="like-count">66</span>
+                                                                          <span class="like-count">{{post.supportNum}}&nbsp&nbsp|&nbsp&nbsp&nbsp回复：{{post.reply_set.count}}</span>
                                                                         </li>
                                                                         {% endfor %}
                                                                         <!-- <li class="article-entry standard">

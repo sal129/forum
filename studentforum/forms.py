@@ -37,40 +37,98 @@ class RegisterForm(forms.ModelForm):
         fields = ('username','email','password', 'password2','portrait','intro')
 
 class changeForm(forms.ModelForm):
-	portrait = forms.ImageField( label=_("头像"),widget=forms.ClearableFileInput,)
-	portrait.widget.initial_text = _('当前')
-	portrait.widget.input_text = _('修改')
-	portrait.widget.clear_checkbox_label = _('清除')
-	portrait.widget.template_with_initial = (
+    portrait = forms.ImageField( label=_("头像"),widget=forms.ClearableFileInput,)
+    portrait.widget.initial_text = _('当前')
+    portrait.widget.input_text = _('修改')
+    portrait.widget.clear_checkbox_label = _('清除')
+    portrait.widget.template_with_initial = (
         '<br />%(initial_text)s<img src="%(initial_url)s" width = "100" height = "100"> '
         '%(clear_template)s<br />%(input_text)s %(input)s'
     )
-	class Meta:
-		model = MyUser
-		fields = ('intro','portrait')	
+    intro = forms.CharField( label=_("自我介绍（可选）"), widget=forms.Textarea, label_suffix='',required=False)
+    class Meta:
+        model = MyUser
+        fields = ('intro','portrait')
+
 class userForm(forms.ModelForm):
-	class Meta:
-		model = User
-		fields = ('email',)		
+    email = forms.CharField( label=_("邮箱（可选）"),label_suffix='',required=False, error_messages={'required': '请输入您的昵称','invalide':'输入的邮箱格式不正确,请重新输入'})
+    class Meta:
+        model = User
+        fields = ('email',)		
 		
 class PostForm(forms.ModelForm):
-	class Meta:
-		model = Post
-		fields = ('title', 'content')
+    photo = forms.ImageField( label=_("图片(可选）"),widget=forms.ClearableFileInput,required=False,label_suffix='',error_messages={'invalide':'请输入正确的图片内容'})
+    photo.widget.initial_text = _('当前')
+    photo.widget.input_text = _('修改')
+    photo.widget.clear_checkbox_label = _('清除')
+    photo.widget.template_with_initial = (
+        '<br />%(initial_text)s<img src="%(initial_url)s" width = "100" height = "100"> '
+        '%(clear_template)s<br />%(input_text)s %(input)s'
+    )
+    attachment = forms.FileField(label=_("附件(可选）"),required=False,label_suffix='',error_messages={'invalide':'请输入正确的文件内容'})
+    attachment.widget.initial_text = _('当前')
+    attachment.widget.input_text = _('修改')
+    attachment.widget.clear_checkbox_label = _('清除')
+    title = forms.CharField( label=_("帖子标题"), label_suffix='',error_messages={'required': '请输入帖子的标题'})
+    content = forms.CharField( label=_("内容"), widget=forms.Textarea,label_suffix='',error_messages={'required': '内容（内容中插入#相关话题#可以将贴子与话题关联起来）'})
+    class Meta:
+        model = Post
+        fields = ('title', 'content','photo','attachment')
 
 
 class ReplyForm(forms.ModelForm):
-	class Meta:
-		model = Reply
-		fields = ('content',)
+    photo = forms.ImageField( label=_("图片（可选）"),widget=forms.ClearableFileInput,required=False,label_suffix='',error_messages={'invalide':'请输入正确的图片内容'})
+    photo.widget.initial_text = _('当前')
+    photo.widget.input_text = _('修改')
+    photo.widget.clear_checkbox_label = _('清除')
+    photo.widget.template_with_initial = (
+        '<br />%(initial_text)s<img src="%(initial_url)s" width = "100" height = "100"> '
+        '%(clear_template)s<br />%(input_text)s %(input)s'
+    )
+    attachment = forms.FileField(label=_("附件(可选）"),required=False,label_suffix='',error_messages={'invalide':'请输入正确的文件内容'})
+    attachment.widget.initial_text = _('当前')
+    attachment.widget.input_text = _('修改')
+    attachment.widget.clear_checkbox_label = _('清除')
+    content = forms.CharField( label=_("回帖内容"), widget=forms.Textarea,label_suffix='',error_messages={'required': '请输入帖子的内容'})
+    class Meta:
+
+        model = Reply
+        fields = ('content','photo','attachment')
+
+class PasswordForm(forms.Form):
+    oldpassword = forms.CharField(
+        label=_("原密码"),
+        widget=forms.PasswordInput,
+    )
+    password = forms.CharField(
+        label=_("新密码"),
+        widget=forms.PasswordInput,
+    )
+    password2 = forms.CharField(
+        label=_("确认密码"),
+        widget=forms.PasswordInput,
+    )
+    def clean(self):
+        cleaned_data = super(PasswordForm, self).clean()
+        password1 = cleaned_data.get("password")
+        password2 = cleaned_data.get("password2")
+        print("check")
+        if password1 != password2:
+            msg = "两次输入的密码不一致"
+            self.add_error('password2', msg)
+
+
 
 class LetterForm(forms.ModelForm):
     class Meta:
         model = Letter
         fields = ('content',)
 
-class PasswordForm(forms.Form):
-    password = forms.CharField(
-        label=_("password"),
-        widget=forms.PasswordInput,
-    )
+class EditColumnForm(forms.Form):
+    value = forms.CharField( label=_("修改为"),label_suffix='',error_messages={'required': '请输入类标的名称','invalid': '请输入正确的类标名称'})
+
+class AddColumnForm(forms.Form):
+    value = forms.CharField( label=_("分类名称"),label_suffix=':',error_messages={'required': '请输入待添加的类标名称','invalid': '请输入正确的类标名称'})
+		
+	
+

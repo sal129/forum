@@ -1,26 +1,514 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'studentforum/postDetail.css' %}" />
-<html>
-<head>
-   <meta charset = "utf-8"/>
-   <title> 贴子详情 </title>
-</head>
-<body>
-  <div id="topForBack"><a href="{% url 'test' %}">返回首页</a></div>
-  <h1> {{post.title}} </h1>
-  <p>{{post.content}}</p>
-  <hr>
-  {% for reply in replies %}
-  <div>
-    <h4>{{reply.content}}</h4>
-    <p><b>{{reply.author}}</b>回复于{{reply.created_at}}</p>
-  </div>
-  {% endfor %}
-  <hr>
-  <form method="POST" class="post-form">
-    {% csrf_token %}
-	{{form.as_p}}
-  <button type="submit" class="save btn btn-default">发表回复</button>
-  </form>
+﻿{% load staticfiles %}
+{% load static %}
+<!doctype html>
+        <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7" lang="en-US"> <![endif]-->
+        <!--[if IE 7]>    <html class="lt-ie9 lt-ie8" lang="en-US"> <![endif]-->
+        <!--[if IE 8]>    <html class="lt-ie9" lang="en-US"> <![endif]-->
+        <!--[if gt IE 8]><!--> <html lang="en-US"> <!--<![endif]-->
+        <head>
+                <!-- META TAGS -->
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                <title>贴子详情</title>
+                <script>
+			    window.onload=function()
+			    {
+			        {%if isfavor %}
+			        document.getElementById("postfavor").textContent="取消收藏";
+			        {%else%}
+			        document.getElementById("postfavor").textContent="收藏";
+			         {%endif%}
+			        document.getElementById("postgood").textContent={{post.supportNum}};
+			        
+			        {%for reply in replies%}
+			        var rep=document.getElementById("countgood_"+{{reply.id}});
+			        rep.textContent={{reply.supportNum}};
+			        {%endfor%}
+			    };  
+			    </script>
+			    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+                <link rel="shortcut icon" href="images/favicon.png" />
+
+
+                
+
+                <!-- Style Sheet-->
+                 <link rel="stylesheet" href="style.css"/>
+                <link rel='stylesheet' id='bootstrap-css-css'  href="{% static 'css/bootstrap5152.css' %}" type='text/css' media='all' />
+                <link rel='stylesheet' id='responsive-css-css'  href="{% static 'css/responsive5152.css' %}" type='text/css' media='all' />
+                <link rel='stylesheet' id='pretty-photo-css-css'  href="{% static 'js/prettyphoto/prettyPhotoaeb9.css' %}" type='text/css' media='all' />
+                <link rel='stylesheet' id='main-css-css'  href="{% static 'css/main5152.css' %}" type='text/css' media='all' />
+                <link rel='stylesheet' id='green-skin-css'  href="{% static 'css/green-skin5152.css' %}" type='text/css' media='all' />
+                <link rel='stylesheet' id='custom-css-css'  href="{% static 'css/custom5152.html' %}" type='text/css' media='all' />
+        </head>
+
+        <body>
+
+                <!-- Start of Header -->
+                <div class="header-wrapper">
+                        <header>
+                                <div class="container">
+
+
+                                        <div class="logo-container">
+                                                <!-- Website Logo -->
+                                                <span class="tag-line">在线论坛</span>
+                                        </div>
+
+
+                                        <!-- Start of Main Navigation -->
+                                        <nav class="main-nav">
+                                                <div class="menu-top-menu-container">
+                                                        <ul id="menu-top-menu" class="clearfix">
+                                                                <li><a href="{% url 'fortopicindex' %}">所有话题</a></li>
+                                                                <li><a href="{% url 'forcolumnindex' %}">全部专栏</a></li>
+                                                                {% if request.user.is_authenticated %}
+                                                                <li><a href="{% url 'forlogout' %}">登出</a></li>
+                                                                <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
+                                                                <li><a href="{% url 'formodify' %}">修改密码</a></li>
+                                                                {% if request.user.myuser.manageType == 2 %}
+                                                                <li><a href="{% url 'forcenter' %}">管理中心</a></li>
+                                                                {% endif %}
+                                                                {% else %}
+                                                                <li><a href="{% url 'forlogin' %}">登录</a></li>
+                                                                <li><a href="{% url 'forregister' %}">注册</a></li>
+                                                                {% endif %}
+                                                                <li><a href="{% url 'toHome' %}">返回主页</a></li>
+                                                        </ul>
+                                                </div>
+                                        </nav>
+                                        <!-- End of Main Navigation -->
+
+                                </div>
+                        </header>
+                </div>
+                <!-- End of Header -->
+
+                <!-- Start of Search Wrapper -->
+                <div class="search-area-wrapper">
+                        <div class="search-area container">
+                                <h3 class="search-header">给你很多很好的评价</h3>
+
+                                <!-- <form id="search-form" class="search-form clearfix" method="get" action="#" autocomplete="off">
+                                        <input class="search-term required" type="text" id="s" name="s" placeholder="Type your search terms here" title="* Please enter a search term!" />
+                                        <input class="search-btn" type="submit" value="Search" />
+                                        <div id="search-error-container"></div>
+                                </form> -->
+                                <form action="/search/" method="get" id="search-form" class="search-form clearfix" action="#" autocomplete="off">
+                                    <input type="text" name="q" class="search-term required">
+                                    <input type="submit" value="Search" class="search-btn">
+                                </form>
+                        </div>
+                </div>
+                <!-- End of Search Wrapper -->
+
+                <!-- Start of Page Container -->
+                                                        <section class="span8 articles-list">
+                                                                <ul class="articles">                                                               	
+                                                                    <span><input type="submit" onclick="changeReplies()" value="只看楼主" style="float: right"></input>
+                                                                    {% if request.user.myuser == post.author or request.user.myuser in post.ofColumn.manager.all%}
+																	<form method="POST" class="post-form">
+																	{% csrf_token %}
+																	<input type="text" name="delete" value= "" style="display:none;"></input>
+																	<input type="submit" value="删       帖"></input>
+																	</form>
+																	{% endif %}</span>
+																	  <img src="{% get_media_prefix %}{{ post.author.portrait }}" width ="100" height ="100">
+																	  <p><b><a href="{% url 'forchange' post.author.user.id %}">发帖人：{{post.author}}</a></b>
+																	  <h4> {{post.title}} </h4>
+																	  <h5>{{post.content}}</h5>
+																	  {% if post.photo %}
+																	  <img src="{% get_media_prefix %}{{ post.photo }}" width ="100" height ="100">
+																	  {% endif %}
+																	  {% if post.attachment %}
+																	  <p><span>附件</span><span onclick = "download(this)">{{postfilename}}</span></p>
+																	  {% endif %}
+																	  发贴时间{{post.created_at}}<a href = "#" ><span onclick='postgoodclick({{post.id}})'>&nbsp;赞</span></a><span id="postgood"></span></p><span id="postfavor" onclick="postfavorclick({{post.id}})">收藏</span><span onclick='reportPost({{post.id}})'>&nbsp;举报</span></p>
+																	  <hr>
+																	  {% for reply in replylist %}
+																	  {%if reply.belongToAuthor == "True"%}
+																	  <div class="reply author" id="replycontain_{{reply.reply1.id}}">
+																	  {% else %}
+																	  <div class="reply nauthor" id="replycontain_{{reply.reply1.id}}">
+																	  {% endif %}
+																	    <img src="{% get_media_prefix %}{{ reply.reply1.author.portrait }}" width ="100" height ="100">
+																	    <p><b><a href="{% url 'forchange' reply.reply1.author.user.id %}">回帖人：{{reply.reply1.author}}</a></b>
+																		<h5>{{reply.reply1.content}}</h5>
+																		{% if reply.reply1.photo %}
+																	    <img src="{% get_media_prefix %}{{ reply.reply1.photo }}" width ="100" height ="100">
+																	    {% endif %}
+																	    {% if reply.reply1.attachment %}
+																	     <p><span>附件</span><span onclick = "downloadReply(this,{{reply.reply1.id}})">{{reply.replyfilename}}</span></p>
+																	    {% endif %}
+																	    回复时间{{reply.reply1.created_at}}&nbsp;&nbsp;<span title="reply_{{reply.reply1.id}}" onclick = "changeShowAndDisplay(this)">收起回复</span>&nbsp;<span id='good' onclick='clicker({{reply.reply1.id}})'>赞</span><span id='countgood_{{reply.reply1.id}}'></span> <span onclick='reportReply({{reply.reply1.id}})'>&nbsp;举报</span>{% if request.user.myuser == reply.reply1.author or request.user.myuser in post.ofColumn.manager.all%}
+																	  <span onclick = "deleteReply({{reply.reply1.id}},this)">删帖</span>
+																	  {% endif%}</p>
+																	    <hr>
+																		<div id = "reply_{{reply.reply1.id}}" style = "display:block;">
+																	        
+																		<div id = "replyinside_{{reply.reply1.id}}">
+																	     {%for rr in reply.reply1.replytoreply_set.all%}
+																		 <div id= "reptorepcontain_{{rr.id}}">
+																	     <span><h6>{{rr.content}}</h6></span>
+																		 <span onclick='reportreplytoreply({{rr.id}})'>举报</span>{%if rr.author == request.user.myuser or request.user.myuser in post.ofColumn.manager.all%}
+																		 <span onclick = "deleteReptoRep({{rr.id}},this)">删帖</span>
+																		 {% endif %}	
+																	     </div>	 
+																	     {%endfor%}
+																		  </div>
+																		 <span id = "showreptorep_{{reply.reply1.id}}" onclick = "showreptorep(this)" style = "display:block;">我也说一句</span>
+																		 <div id = "reptorepdiv_{{reply.reply1.id}}" style = "display:none;">
+																		 <textarea id="reptorep_{{reply.reply1.id}}" rows="10" cols="40"></textarea>
+																		 <input type="button" value="回复" onclick = "updateReply(this)")></input>	 
+																		 </div>
+																		 </div>
+																	  </div>
+																	  <hr>
+																	  </div>
+																	  {% endfor %}
+																	  <hr>
+																	  <form enctype="multipart/form-data" method="POST" class="post-form">
+																	    {% csrf_token %}
+																		{{form.as_p}}
+																	  <button type="submit" class="save btn btn-default">发表回复</button>
+																	  </form>
+                                                                </ul>
+                                                        </section>
+               
+                <a href="#top" id="scroll-top"></a>
+
+                <!-- script -->
+                <script type='text/javascript' src="{% static 'js/jquery-1.8.3.min.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/prettyphoto/jquery.prettyPhoto.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/jflickrfeed.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/jquery.liveSearch.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/jquery.form.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/jquery.validate.min.js' %}"></script>
+                <script type='text/javascript' src="{% static 'js/custom.js' %}"></script>
+
+        <div style="display:none"><script src='http://v7.cnzz.com/stat.php?id=155540&web_id=155540' language='JavaScript' charset='gb2312'></script></div>
+        <script>
+         function getCookie(name) {
+         var cookieValue = null;
+         if (document.cookie && document.cookie !== '') {
+           var cookies = document.cookie.split(';');
+           for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+           }
+         }
+         return cookieValue;
+      	}
+		var csrftoken = getCookie('csrftoken');
+		 
+		 function csrfSafeMethod(method) {
+		    // these HTTP methods do not require CSRF protection
+		    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+		$.ajaxSetup({
+		    beforeSend: function(xhr, settings) {
+		        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		        }
+		    }
+		});
+		  function changeShowAndDisplay(r)
+		  {
+		   if(document.getElementById(r.title).style.display == "block")
+		   {
+		     document.getElementById(r.title).style.display = "none";	 
+			 r.innerHTML = "回复";
+		   }
+		   else
+		   {
+		     var replyid = r.title;
+			 replyid = replyid.slice(replyid.indexOf("_")+1);
+		     document.getElementById(r.title).style.display = "block";
+			 document.getElementById("showreptorep_"+replyid).style.display = "none";
+			 document.getElementById("reptorepdiv_"+replyid).style.display = "block";
+			 
+			 r.innerHTML = "收起回复";
+		   }
+		  }
+		  function updateReply(r)
+		  {
+		       var replyid = r.parentNode.id;
+		       replyid = replyid.slice(replyid.indexOf("_")+1);
+			   content = document.getElementById("reptorep_"+replyid).value;
+		       var datas = {'type':'reply','replyid':replyid, 'content':content};
+		         $.ajax({
+		             url:"{% url 'forpostdetail' post.id%}",
+		             type:'POST',
+		             tradition:true,   //原生模式
+		             data:{data:JSON.stringify(datas)},
+		             success: function(data1){ 
+					    //alert("success");
+						data1 = JSON.parse(data1);
+						var temptanother=document.createElement("div");
+						temptanother.id = "reptorepcontain_"+String(data1["reptorep"]);
+						console.log(data1["content"]);
+		                //$("#test").text(data1["content"]);
+					    var para=document.createElement("p");
+						para.innerHTML = data1["content"];
+
+		                temptanother.appendChild(para);
+						
+						var divtempt = document.createElement("div");
+						var spandelete = document.createElement("span");
+						spandelete.innerHTML = "删帖";
+						spandelete.id = "deletereptorep_"+String(data1["reptorep"])
+						spandelete.title = String(data1["reptorep"]);
+						divtempt.appendChild(spandelete);
+						temptanother.appendChild(divtempt);
+						
+						var spanON = document.createElement("span"); 
+						spanON.innerHTML = "举报";
+						spanON.title = String(data1["reptorep"]);
+						spanON.id = "reportreptorep_"+String(data1["reptorep"])
+						temptanother.appendChild(spanON);
+						
+						var element=document.getElementById("replyinside_"+replyid);
+						element.appendChild(temptanother);
+						
+		                document.getElementById("reportreptorep_"+String(data1["reptorep"])).onclick = function (r = this){
+						reportreplytoreply(this.title);
+						}
+						
+		 				document.getElementById("deletereptorep_"+String(data1["reptorep"])).onclick = function (r = this){
+						 reptorepid = parseInt(this.title)
+						 deleteReptoRep(reptorepid,this);
+						}
+		            }
+		           }
+		 
+		         );
+		  }
+		      
+		  function clicker(rid)
+		    {
+		        //var countgood=document.getElementById('countgood_'+rid).textContent;
+		        //countgood++;
+		        //document.getElementById('countgood_'+rid).textContent=countgood;
+		       
+		        var d={'replyid':rid,'whatever':'whatever'};
+		         //alert(d["replyid"])
+		        $.ajax({
+		            url:"{% url 'countgood' %}",
+		            type:'POST',
+		            tradition:true,
+		            data:{data:JSON.stringify(d)},
+		            success:function(ret)
+		            {
+		                
+		                ret=JSON.parse(ret);
+		                
+		                document.getElementById("countgood_"+rid).textContent=ret['num'];
+		            }
+		        });
+		        
+		        //alert('wtf')
+		        
+		    }
+		 function postgoodclick(pid)
+		 {
+		     var d={'postid':pid,"whatever":"whatever"};
+		     
+		     $.ajax({
+		        url:"{% url 'postcountgood' post.id post.id post.id %}" ,
+		        type:'POST',
+		        tradition:true,
+		        data:{data:JSON.stringify(d)},
+		        success:function(ret)
+		        {
+		            ret=JSON.parse(ret);
+		           
+		            document.getElementById("postgood").textContent=ret["num"];
+		        }
+		     });
+		     
+		 }
+		  
+
+		 function postfavorclick(pid)
+		 {
+		     var d={};
+		      //alert('wtk')
+		     //alert(pid)
+		    
+		     if(document.getElementById("postfavor").textContent=="收藏")
+		     {
+		         
+		         
+		         d={"postid":pid,"target":"include"};
+		         //alert(d["postid"]))
+		         $.ajax({
+		            url:"{% url 'postfavor' post.id post.id post.id post.id %}",
+		            type:'POST',
+		            tradition:true,
+		            data:{data:JSON.stringify(d)},
+		            success:function(ret)
+		             {
+		                 ret=JSON.parse(ret);
+		                //alert('wtk')
+		                 document.getElementById("postfavor").textContent=ret["message"];
+		             }
+		         });
+		         //alert('a')
+		     }
+		     else if(document.getElementById("postfavor").textContent=="取消收藏")
+		    {
+		        d={"postid":pid,"target":"exclude"};
+		        $.ajax({
+		            url:"{% url 'postfavor' post.id post.id post.id post.id %}",
+		            type:'POST',
+		            tradition:true,
+		            data:{data:JSON.stringify(d)},
+		            success:function(ret)
+		             {
+		                 ret=JSON.parse(ret);
+		                 document.getElementById("postfavor").textContent=ret["message"];
+		             }
+		         });
+		    }
+		 }
+		 
+		  function showreptorep(r)
+		  {
+		    var replyid = r.parentNode.id;
+		    replyid = replyid.slice(replyid.indexOf("_")+1);
+			r.style.display = "none";
+			document.getElementById("reptorepdiv_"+replyid).style.display = "block"; 
+		  }
+			 
+		         function download(r){
+			 if(document.getElementById("temptDownload"))
+			 {
+			 document.getElementById("body").removeChild(document.getElementById("temptDownload"));
+			 }
+		     var elemIF = document.createElement("iframe");  
+		     elemIF.src = "{% url 'downloadpost' post.id%}";  
+		     elemIF.style.display = "none";
+			 elemIF.id = "temptDownload"
+		     document.body.appendChild(elemIF); 
+		      }
+			  
+			  function downloadReply(r,replyid){
+			 if(document.getElementById("temptDownload"))
+			 {
+			 document.getElementById("body").removeChild(document.getElementById("temptDownload"));
+			 }
+		     var elemIF = document.createElement("iframe");	 
+		     elemIF.src = "/download/replyattachment/" + replyid;  
+		     elemIF.style.display = "none";
+			 elemIF.id = "temptDownload"
+		     document.body.appendChild(elemIF); 
+		      }
+			  var authorOnly = false;
+			  function changeReplies()
+			  {
+			    var nauthorreplies = document.getElementsByClassName("nauthor");
+			    if(authorOnly == false)
+				{
+				 for(var i = 0; i < nauthorreplies.length; i++)
+				 {
+				 nauthorreplies[i].style.display = "none";
+				 }
+				 authorOnly = true
+				}
+				else
+				{
+				 for(var i = 0; i < nauthorreplies.length; i++)
+				 {
+				 nauthorreplies[i].style.display = "block";
+				 }
+				  authorOnly = false;
+				 }
+				 console.log(authorOnly);
+			  }
+		     
+			 function reportPost(postid)
+			 {
+		       var datas = {'type':'reportpost','postid':postid};
+			   		     //alert("start");
+		         $.ajax({
+		             url:"{% url 'forpostdetail' post.id%}",
+		             type:'POST',
+		             tradition:true,   //原生模式
+		             data:{data:JSON.stringify(datas)},
+		             success: function(data1){ 			
+		            }
+		           }
+		 
+		         );
+			 }
+			 
+			 function reportReply(replyid)
+			 {
+		       var datas = {'type':'reportreply','replyid':replyid};
+		         $.ajax({
+					url:"{% url 'forpostdetail' post.id%}",
+		             type:'POST',
+		             tradition:true,   //原生模式
+		             data:{data:JSON.stringify(datas)},
+		             success: function(data1){ 			
+		            }
+		           }
+		         );
+			 }
+			 function reportreplytoreply(reptorepid)
+			 {
+			 if(typeof reptorepid == "string")
+			 {
+			 reptorepid = parseInt(reptorepid)
+			 }
+			 var datas = {'type':'reportreplytoreply','reptorepid':reptorepid};
+		         $.ajax({
+					url:"{% url 'forpostdetail' post.id%}",
+		             type:'POST',
+		             tradition:true,   //原生模式
+		             data:{data:JSON.stringify(datas)},
+		             success: function(data1){			 
+		            }
+		           }
+		         );
+			 }
+			 function deleteReply(replyid, r)
+			 {
+			     var datas = {'type':'deletereply','replyid':replyid};
+		         $.ajax({
+					url:"{% url 'forpostdetail' post.id%}",
+		             type:'POST',
+		             tradition:true,   //原生模式
+		             data:{data:JSON.stringify(datas)},
+		             success: function(data1){
+		                 toremove = document.getElementById("replycontain_"+String(replyid));
+						 toremove.parentNode.removeChild(toremove);
+		            }
+		           }
+		         ); 
+			 }
+			 
+			 function deleteReptoRep(reptorepid, r)
+			 {
+				var datas = {'type':'deletereptorep','reptorepid':reptorepid};
+		         $.ajax({
+					url:"{% url 'forpostdetail' post.id%}",
+		             type:'POST',
+		             tradition:true,   //原生模式
+		             data:{data:JSON.stringify(datas)},
+		             success: function(data1){
+		                 toremove = document.getElementById("reptorepcontain_"+String(reptorepid));
+						 toremove.parentNode.removeChild(toremove);
+		            }
+		           }
+		         ); 
+			 }
+		 </script>
 </body>
 </html>

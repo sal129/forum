@@ -42,12 +42,8 @@
 
                                         <div class="logo-container">
                                                 <!-- Website Logo -->
-                                                <a href="主页.html"  title="Knowledge Base Theme">
-                                                        demo
-                                                </a>
-                                                <span class="tag-line">给你很多很好的评价</span>
+                                                <span class="tag-line">在线论坛</span>
                                         </div>
-
 
                                         <!-- Start of Main Navigation -->
                                     <nav class="main-nav">
@@ -59,6 +55,9 @@
                                                 <li><a href="{% url 'forlogout' %}">登出</a></li>
                                                 <li><a href="{% url 'forchange' request.user.id %}">{{request.user}}的个人中心</a></li>
                                                 <li><a href="{% url 'formodify' %}">修改密码</a></li>
+                                                {% if request.user.myuser.manageType == 2 %}
+                                                <li><a href="{% url 'forcenter' %}">管理中心</a></li>
+                                                {% endif %}
                                                 {% else %}
                                                 <li><a href="{% url 'forlogin' %}">登录</a></li>
                                                 <li><a href="{% url 'forregister' %}">注册</a></li>

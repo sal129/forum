@@ -1,0 +1,49 @@
+    <html>
+	 {% for column in columns %}
+    <a href="{% url 'forcolumn' column.id %}" title="Lorem ipsum dolor sit amet,">{{column.name}}</a>
+	<form method="POST" class="post-form" style="display:inline;">
+	{% csrf_token %}
+	<input type="text" name="delete" value= "{{column.id}}" style="display:none;"></input>
+	<input type="submit" value="删除"></input>
+	</form>
+	<span onclick= "showeditform({{column.id}})">编辑</span>
+	{% if not inlineid == column.id%}
+	<form id="edit_{{column.id}}" enctype="multipart/form-data" method="POST" class="post-form" style="display:none">
+	{% else %}
+	<form id="edit_{{column.id}}" enctype="multipart/form-data" method="POST" class="post-form" style="display:inline">
+	{% endif %}
+    {% csrf_token %}
+	<label for="{{ form1.value.id_for_label }}"> {{ form1.value.label_tag }}</label>
+	{{ form1.value }}
+  <input type="text" name="change" value="{{column.id}}" style="display:none"></input>
+  <input type="submit" class="save btn btn-default" value="确定"></input>
+   {% if form1.value.errors %}
+      {% if inlineid == column.id%}
+      {% for error in form1.value.errors %}
+     <strong>{{ error|escape }}&nbsp&nbsp</strong>
+      {% endfor %}
+	  {% endif %}
+      {% endif %}
+  </form>
+  	 <br/>
+   {% endfor %}
+   <p>添加分类</p>
+	<form enctype="multipart/form-data" method="POST" class="post-form" >
+    {% csrf_token %}
+	{{ form2.value }}
+  <input type="text" name="add" value="" style="display:none"></input>
+  <input type="submit" class="save btn btn-default" value="确定"></input>
+	{% if form2.value.errors %}
+      {% for error in form2.value.errors %}
+     <p><strong>{{ error|escape }}&nbsp&nbsp</strong></p>
+      {% endfor %}
+      {% endif %}
+  </form>
+  <script>
+  function showeditform(columnid)
+  {
+     editform = document.getElementById("edit_"+String(columnid));
+	 editform.style.display = "inline"
+  }
+  </script
+  </html>
